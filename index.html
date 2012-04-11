@@ -1,0 +1,213 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux/x86 (vers 11 February 2007), see www.w3.org" />
+  <link rel="Edit-Time-Data" href="index_files/editdata.mso" />
+  <link rel="themeData" href="index_files/themedata.xml" />
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+  <title></title>
+  <style type="text/css">
+
+    body { background-color: #eeeeee;
+        margin: 0;
+        padding: 0px;
+        font-family: "Helvetica Neue", Arial;
+        font-weight: lighter;
+        font-size: 16px; }
+
+    form.collection-selector { display: inline-block; padding-right: 20px;}
+
+    .date { display: inline-block;
+        width: 165px; }
+    .time { display: inline-block;
+        width: 120px; }
+    .date_option { display: inline-block;
+        width: 40px;}
+    .last { padding-bottom: 20px;}
+    #opmerking {
+        font-style:italic;
+        font-size: 15px;
+    }
+
+    #content {
+        width: 800px;
+        margin: 0 auto;
+        padding: 25px 50px;
+        background-color: #ffffff;
+        -webkit-box-shadow: 0px 0px 15px 0px rgba(00, 00, 00, 1);
+        -moz-box-shadow: 0px 0px 15px 0px rgba(00, 00, 00, 1);
+        box-shadow: 0px 0px 15px 0px rgba(00, 00, 00, 1);
+    }
+
+    #heatmapArea {
+        position:relative;
+        float:left;
+        width:800px;
+        height:600px;
+        border:1px dashed black;
+        margin-bottom: 20px;
+    }
+
+    #collections1{
+        border: 3px solid red;
+    }
+    #collections2{
+        border: 3px solid green;
+    }
+    #collections3{
+        border: 3px solid blue;
+    }
+
+</style>
+</head>
+
+<body>
+<div id="content">
+	<h1>Heatmap buitenobjecten</h1>
+
+	<div id="heatmapArea"></div>
+	<form class="collection-selector">
+		<select id="collections1" class="collections"><option value="">-</option></select>
+		<select id="collections2" class="collections"><option value="">-</option></select>
+		<select id="collections3" class="collections"><option value="">-</option></select>
+	</form>
+    <span id="debug">...</span><br />
+
+    <h2>Nieuwe set uploaden</h2>
+    <form enctype="multipart/form-data" action="scripts/upload-file.py" method=post>
+        <p><label for=somefile>Bestand: </label><input type=file name=somefile value="selecteer een bestand" >
+        <p><input type=submit value="Uploaden">
+    </form>
+
+</div> <!-- content -->
+<script type="text/javascript" src="js/heatmap.js"></script>
+<script type="text/javascript" src="js/heatmap-gmaps.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script type="text/javascript">
+
+var map;
+var heatmap; 
+
+window.onload = function(){
+
+	var my_resolution = 70;
+	var my_radius = 16;
+	var my_opacity = 70;
+
+	var myLatlng = new google.maps.LatLng(51.9209866008, 4.47188401315);
+	// sorry - this demo is a beta
+	// there is lots of work todo
+	// but I don't have enough time for eg redrawing on dragrelease right now
+	var myOptions = {
+	  zoom: 15,
+	  center: myLatlng,
+	  mapTypeId: google.maps.MapTypeId.ROADMAP,
+	  disableDefaultUI: false,
+	  scrollwheel: true,
+	  draggable: true,
+	  navigationControl: true,
+	  mapTypeControl: false,
+	  scaleControl: true,
+	  disableDoubleClickZoom: false
+	};
+	map = new google.maps.Map(document.getElementById("heatmapArea"), myOptions);
+
+
+	heatmap1 = new HeatmapOverlay(map, { "radius":my_radius,
+                                        "visible":true,
+                                        "opacity":my_opacity,
+                                        "gradient": { 0.0: "rgb(220,0,0)",
+			                                          1.0: "rgb(255,0,0)"}
+                                    	});
+
+	heatmap2 = new HeatmapOverlay(map, { "radius":my_radius,
+                                        "visible":true,
+                                        "opacity":my_opacity,
+                                        "gradient": { 0.0: "rgb(0,200,0)",
+			                                          1.0: "rgb(0,200,0)"}
+                                    	});
+
+	heatmap3 = new HeatmapOverlay(map, { "radius":my_radius,
+                                        "visible":true,
+                                        "opacity":my_opacity,
+                                        "gradient": { 0.0: "rgb(0,0,200)",
+			                                          1.0: "rgb(0,0,200)"}
+                                    	});
+
+    var loaddata = function(heatmap, data_set, resolution){
+        $("#debug").text("loading");
+        $.ajax({ url: "scripts/readmongo-reduce.py?set="+data_set+"&resolution="+resolution+"&bounds="+map.getBounds() }).done(
+                function( msg ) {
+                    $("#debug").text("drawing");
+                    eval(msg);
+                    heatmap.setDataSet(testData);
+                    $("#debug").text("done");
+                });
+    }
+
+
+    var upload = function(){
+        $.ajax({ url: "scripts/find_collections.py" }).done(
+                function( msg ) {
+
+                })
+    };
+
+    $.ajax({ url: "scripts/find_collections.py" }).done(
+            function( msg ) {
+                var options = $("select.collections");
+                var coll_array = eval(msg);
+                for (var i = 0; i < coll_array.length; i++) {
+                    options.append($("<option />").val(coll_array[i]).text(coll_array[i]));
+                }
+                $("#collections1").change(function(){
+                    if ($("#collections1").val() != ""){
+	                    loaddata(heatmap1, $("#collections1").val(), my_resolution);
+	                } else {
+	                	heatmap1.setDataSet({max: 0, data: []});
+	                }
+	            });
+                
+                $("#collections2").change(function(){
+                    if ($("#collections2").val() != ""){
+    	                loaddata(heatmap2, $("#collections2").val(), my_resolution);
+	                } else {
+	                	heatmap2.setDataSet({max: 0, data: []});
+	                }
+                });
+                
+                $("#collections3").change(function(){
+                    if ($("#collections3").val() != ""){
+	                    loaddata(heatmap3, $("#collections3").val(), my_resolution);
+	                } else {
+	                	heatmap3.setDataSet({max: 0, data: []});
+	                }
+                });
+                
+                $('#collections1 :nth-child(2)').attr('selected', 'selected')
+                
+                google.maps.event.addListener(map, "idle", function(){
+                    $("#debug").text("call loader");
+                    if ($("#collections1").val() != ""){
+	                    loaddata(heatmap1, $("#collections1").val(), my_resolution);
+	                } else {
+	                	heatmap1.setDataSet({max: 0, data: []});
+	                }
+                    if ($("#collections2").val() != ""){
+    	                loaddata(heatmap2, $("#collections2").val(), my_resolution);
+	                } else {
+	                	heatmap2.setDataSet({max: 0, data: []});
+	                }
+                    if ($("#collections3").val() != ""){
+	                    loaddata(heatmap3, $("#collections3").val(), my_resolution);
+	                } else {
+	                	heatmap3.setDataSet({max: 0, data: []});
+	                }
+                });
+            });
+
+};
+
+</script>
+</body>
+</html>
