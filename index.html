@@ -90,8 +90,8 @@ var heatmap;
 
 window.onload = function(){
 
-	var my_resolution = 70;
-	var my_radius = 16;
+	var my_resolution = 100;
+	var my_radius = 10;
 	var my_opacity = 70;
 
 	var myLatlng = new google.maps.LatLng(51.9209866008, 4.47188401315);
@@ -136,14 +136,16 @@ window.onload = function(){
 
     var loaddata = function(heatmap, data_set, resolution){
         $("#debug").text("loading");
-        $.ajax({ url: "scripts/readmongo-reduce.py?set="+data_set+"&resolution="+resolution+"&bounds="+map.getBounds() }).done(
-                function( msg ) {
-                    $("#debug").text("drawing");
-                    eval(msg);
-                    heatmap.setDataSet(testData);
-                    $("#debug").text("done");
+        $.ajax({ url: "scripts/readmongo-reduce.py?set="+data_set+"&resolution="+resolution+"&bounds="+map.getBounds(),
+                 success: function( msg ) {
+                     $("#debug").html("drawing");
+                     alert("adsfd");
+                     eval(msg);
+                     heatmap.setDataSet(testData);
+                     $("#debug").text("done");
+                    }
                 });
-    }
+    };
 
 
     var upload = function(){

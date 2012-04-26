@@ -89,6 +89,8 @@ start = (upperleft[0]+(step/2), upperleft[1]+(step/2))
 box = [ lowerleft, upperright ]
 grid = objects.inline_map_reduce(map, reduce, query={"location": {"$within" : {"$box" : box}}})
 
+
+
 result = "var testData={ max: "+str(max([item["value"]["count"] for item in grid]))+", data: ["
 for i, item in enumerate(grid):
     if i > 0:
