@@ -139,7 +139,6 @@ window.onload = function(){
         $.ajax({ url: "scripts/readmongo-reduce.py?set="+data_set+"&resolution="+resolution+"&bounds="+map.getBounds(),
                  success: function( msg ) {
                      $("#debug").html("drawing");
-                     alert("adsfd");
                      eval(msg);
                      heatmap.setDataSet(testData);
                      $("#debug").text("done");

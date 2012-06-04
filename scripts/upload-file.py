@@ -11,6 +11,7 @@ import sys
 import zipfile
 
 # third party libraries
+from bson.code import Code
 from pymongo import Connection, GEO2D
 import shpUtils
 
@@ -49,6 +50,7 @@ connection = Connection()
 db = connection.opendata
 my_collection = db[collection_name]
 my_collection.ensure_index([("location", GEO2D)])
+att_collection = db.attributes
 
 try:
     # load the shapefile
@@ -72,6 +74,26 @@ try:
         lat = rd2gps.RD2lat(point[0],point[1])
         record["location"] = {'lon':lon, 'lat':lat}
         my_collection.insert(record)
+
+        # Find all possible attributes and store them separately
+        map = Code("""
+        function() {
+            for (var key in this.properties) { emit(key, 0); }
+        }
+        """)
+
+        reduce = Code("""
+        function(key, values) {
+            return key;
+        }
+        """)
+
+        mapreduce = my_collection.inline_map_reduce(map, reduce, query={})
+        attributes = {"_id":my_collection.name, "attributes":[]}
+        for att in mapreduce:
+            attributes["attributes"].append(att["_id"])
+        att_collection.insert(attributes)
+
 
     # delete the extracted files
     shutil.rmtree('upload')
