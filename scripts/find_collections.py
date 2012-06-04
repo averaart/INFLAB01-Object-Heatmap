@@ -13,6 +13,7 @@ collections = [str(collection) for collection in collections]
 collections.remove('system.indexes')
 collections.remove('objects')
 collections.remove('new_objects')
+collections.remove('attributes')
 
 collections = sorted(collections, key=str.lower)
 
