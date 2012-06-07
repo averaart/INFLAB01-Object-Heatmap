@@ -51,6 +51,10 @@
         margin-right: 3em;
     }
 
+    .attributes {
+        width: 110px;
+    }
+
 </style>
 </head>
 
@@ -144,6 +148,7 @@ window.onload = function(){
                                     if (att_array == undefined ){
                                         clearSelect(selector);
                                     } else {
+                                        clearSelect(selector);
                                         var selects = $("."+($(selector).attr("id")));
                                         for (var i = 0; i < att_array.length; i++) {
                                             selects.append($("<option />").val(att_array[i]).text(att_array[i]));

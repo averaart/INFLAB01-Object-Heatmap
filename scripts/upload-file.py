@@ -53,6 +53,9 @@ my_collection.ensure_index([("location", GEO2D)])
 att_collection = db.attributes
 
 try:
+
+    attributes = set()
+
     # load the shapefile
     shpRecords = shpUtils.loadShapefile(filename)
 
@@ -73,27 +76,12 @@ try:
         lon = rd2gps.RD2lng(point[0],point[1])
         lat = rd2gps.RD2lat(point[0],point[1])
         record["location"] = {'lon':lon, 'lat':lat}
+        for att in record["properties"].keys():
+            attributes.add(att)
         my_collection.insert(record)
 
-        # Find all possible attributes and store them separately
-        map = Code("""
-        function() {
-            for (var key in this.properties) { emit(key, 0); }
-        }
-        """)
-
-        reduce = Code("""
-        function(key, values) {
-            return key;
-        }
-        """)
-
-        mapreduce = my_collection.inline_map_reduce(map, reduce, query={})
-        attributes = {"_id":my_collection.name, "attributes":[]}
-        for att in mapreduce:
-            attributes["attributes"].append(att["_id"])
-        att_collection.insert(attributes)
-
+    attributes = {"_id":my_collection.name, "attributes":sorted(list(attributes))}
+    att_collection.insert(attributes)
 
     # delete the extracted files
     shutil.rmtree('upload')
