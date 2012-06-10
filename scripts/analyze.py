@@ -17,22 +17,40 @@ basicConfig(level=DEBUG,
 connection = Connection()
 db = connection.opendata
 
+# request is a dictionary. Each key is the name of a set. Each value is a list of attribute-names.
+# This should, of course, be supplied via GET or POST values later on.
 request = {"Straatmeubilair": ["STRAATNAAM"],
            "Lichtmastlocaties": ["STRAATNAAM"]}
 
-bounds = ((50.91434265748467, 3.461112261746166), (52.92762956096251, 5.482655764553783))
+# bounds defines the area that's being examined.
+# The two tuples indicate lower-left and upper-right corners of the area.
+bounds = ((51.91434265748467, 4.461112261746166), (51.92762956096251, 4.482655764553783))
+
+# raster_size defines how many fields the raster has on ONE side.
+# A value of 20 would result in a raster of (20 * 20 =) 400 fields.
+# This means that the pearson's formula will be called with lists of 400 elements each.
 raster_size = 20
 
 # determine the width and height of one raster field
 width = (bounds[1][1]-bounds[0][1]) / raster_size
 height = (bounds[1][0]-bounds[0][0]) / raster_size
 
+# sets will store the results of any map/reduce queries
 sets = {}
 
+
+
+# Pearson's correlation coefficient takes two 1D lists.
+# Therefore, the raster will be mapped into a list, starting top left to right,
+# then moving down row for row. In a 5x5 raster, element 20 would represent the lower left corner (zero-based!)
+
+
+# for each dataset in "request" a separate map/reduce query will be run
 for request_set in request:
     objects = db[request_set]
     attributes = request[request_set]
 
+    # 
     map = Code("""
     function (key, values){
         var attributes = """+str(attributes)+""";
