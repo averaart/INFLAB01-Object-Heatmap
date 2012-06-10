@@ -19,7 +19,7 @@ db = connection.opendata
 
 # request is a dictionary. Each key is the name of a set. Each value is a list of attribute-names.
 # This should, of course, be supplied via GET or POST values later on.
-request = {"Straatmeubilair": ["STRAATNAAM"],
+request = {"Straatmeubilair": ["STRAATNAAM", "THEMA"],
            "Lichtmastlocaties": ["STRAATNAAM"]}
 
 # bounds defines the area that's being examined.
@@ -29,7 +29,7 @@ bounds = ((51.91434265748467, 4.461112261746166), (51.92762956096251, 4.48265576
 # raster_size defines how many fields the raster has on ONE side.
 # A value of 20 would result in a raster of (20 * 20 =) 400 fields.
 # This means that the pearson's formula will be called with lists of 400 elements each.
-raster_size = 20
+raster_size = 10
 
 # determine the width and height of one raster field
 width = (bounds[1][1]-bounds[0][1]) / raster_size
@@ -50,7 +50,8 @@ for request_set in request:
     objects = db[request_set]
     attributes = request[request_set]
 
-    # 
+    # The first part of the map function determines in what raster-field the object is located, stored as "index"
+    # Then, for each attribute in "request" emit() is called with the value of the attribute and its place in the list.
     map = Code("""
     function (key, values){
         var attributes = """+str(attributes)+""";
@@ -67,6 +68,10 @@ for request_set in request:
     }
     """)
 
+    # The emit() calls by the map function result in calls of the reduce function for each unique key (in this case
+    # the attribute-names) followed by a list of values from each emit() for that unique key.
+    # The reduce function builds an array for each possible value, where each element of the array represents a field
+    # on the raster. All elements are set to zero. Then all occurrences of that value are counted for each field.
     reduce = Code("""
     function (key, values) {
         var result = {};
@@ -77,7 +82,6 @@ for request_set in request:
                 for (var i=0; i<"""+str(raster_size*raster_size)+"""; i++){
                     result[value.value][i]=0;
                 }
-                result[value.value][value.index]=0;
             }
             result[value.value][value.index] += 1;
         });
@@ -86,7 +90,16 @@ for request_set in request:
     }
     """)
 
+    # sets is a dictionary where the key is the name of a data-set and the value is a list of dictionaries.
+    # In each dictionary, "_id" contains the name of an attribute and "value" contains a new dictionary.
+    # The innermost dictionary has possible values for the aforementioned attribute as keys, and the list of counts of
+    # that value for each raster_field.
     sets[request_set] = objects.inline_map_reduce(map, reduce, query={"location": {"$within" : {"$box" : bounds}}})
+
+pprint(sets)
+
+# Here the script loops through all acquired lists (by looping through data-sets, attributes and their possible values)
+# and runs the pearson function against all acquired lists (including itself).
 
 for set in sets:
     print set
