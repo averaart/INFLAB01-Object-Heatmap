@@ -1,97 +1,102 @@
-#!/usr/bin/python
-# __author__ = 'averaart'
-
-# python comes with batteries included
-import cgi
-import fnmatch
-import os
-from pprint import pprint
+#!/usr/bin/env python
 import shutil
-import sys
-import zipfile
 
-# third party libraries
-from bson.code import Code
+__author__ = 'Maarten'
+import cgi, os
+import cgitb; cgitb.enable()
 from pymongo import Connection, GEO2D
 import shpUtils
-
-# project library
 import rd2gps
+import shutil
 
+try: # Windows needs stdio set for binary mode.
+    import msvcrt
+    msvcrt.setmode (0, os.O_BINARY) # stdin  = 0
+    msvcrt.setmode (1, os.O_BINARY) # stdout = 1
+except ImportError:
+    pass
 
-def locate(pattern, root=os.curdir):
-    '''Locate all files matching supplied filename pattern in and below
-    supplied root directory.'''
-    for path, dirs, files in os.walk(os.path.abspath(root)):
-        for filename in fnmatch.filter(files, pattern):
-            yield os.path.join(path, filename)
-
-# make sure the output is valid
-# print "Content-Type: text/plain"
-
-
-# get the file from the form
 form = cgi.FieldStorage()
-filefield = form['somefile']
 
-# check if it's a zipfile, and if so, extract it
-if filefield.file is not None and zipfile.is_zipfile(filefield.file):
-    zfile = zipfile.ZipFile(filefield.file)
-    zfile.extractall(path='upload')
+# A nested FieldStorage instance holds the file
+shp = form['shp']
+dbf = form['dbf']
+coll = form['collection'].value
 
-# find the location of the main shapefile
-files = [my_file for my_file in locate("*.shp", "upload")]
-filename = files[len(files)-1]
 
-collection_name = filefield.filename.replace('.zip','')
+# Test if the file was uploaded
+if shp.filename and dbf.filename:
 
-# this needs to be generalized
-connection = Connection()
-db = connection.opendata
-my_collection = db[collection_name]
-my_collection.ensure_index([("location", GEO2D)])
-att_collection = db.attributes
+    os.mkdir('upload')
+    # strip leading path from file name to avoid directory traversal attacks
+    fnShp = os.path.basename(shp.filename)
+    open('upload/' + fnShp, 'wb').write(shp.file.read())
+    message = '1'
 
-try:
+    fnDbf = os.path.basename(dbf.filename)
+    open('upload/' + fnDbf, 'wb').write(dbf.file.read())
+    message = '2'
 
-    attributes = set()
+    # this needs to be generalized
+    connection = Connection()
+    db = connection.opendata
+    my_collection = db[coll]
+    my_collection.ensure_index([("location", GEO2D)])
+    att_collection = db.attributes
 
-    # load the shapefile
-    shpRecords = shpUtils.loadShapefile(filename)
+    try:
+        attributes = set()
 
-    # add all the records in the shapefile to the new collection
-    for record in shpRecords:
-        if "x" in record["location"]:
-            point = (record["location"]["x"], record["location"]["y"])
-        elif "xmax" in record["location"]:
-            xmax = record["location"]["xmax"]
-            xmin = record["location"]["xmin"]
-            ymax = record["location"]["ymax"]
-            ymin = record["location"]["ymin"]
-            x = xmin + ((xmax-xmin)/2)
-            y = ymin + ((ymax-ymin)/2)
-            point = (x,y)
-        else:
-            continue
-        lon = rd2gps.RD2lng(point[0],point[1])
-        lat = rd2gps.RD2lat(point[0],point[1])
-        record["location"] = {'lon':lon, 'lat':lat}
-        for att in record["properties"].keys():
-            attributes.add(att)
-        my_collection.insert(record)
+        # load the shapefile
+        shpRecords = shpUtils.loadShapefile('upload/' + fnShp)
 
-    attributes = {"_id":my_collection.name, "attributes":sorted(list(attributes))}
-    att_collection.insert(attributes)
+        # add all the records in the shapefile to the new collection
+        for record in shpRecords:
+            if "x" in record["location"]:
+                point = (record["location"]["x"], record["location"]["y"])
+            elif "xmax" in record["location"]:
+                xmax = record["location"]["xmax"]
+                xmin = record["location"]["xmin"]
+                ymax = record["location"]["ymax"]
+                ymin = record["location"]["ymin"]
+                x = xmin + ((xmax-xmin)/2)
+                y = ymin + ((ymax-ymin)/2)
+                point = (x,y)
+            else:
+                continue
+            lon = rd2gps.RD2lng(point[0],point[1])
+            lat = rd2gps.RD2lat(point[0],point[1])
+            record["location"] = {'lon':lon, 'lat':lat}
+            for att in record["properties"].keys():
+                attributes.add(att)
+            my_collection.insert(record)
 
-    # delete the extracted files
-    shutil.rmtree('upload')
+        attributes = {"_id":my_collection.name, "attributes":sorted(list(attributes))}
+        att_collection.insert(attributes)
+
+        # delete the extracted files
+        shutil.rmtree('upload')
+        print "Status: 303 See other"
+        print "Location: /"
+        print
+
+    except Exception:
+        shutil.rmtree('upload')
+        my_collection.drop()
+        print "Status: 303 See other"
+        print "Location: /"
+        print
+
+else:
     print "Status: 303 See other"
     print "Location: /"
     print
 
-except Exception:
-    shutil.rmtree('upload')
-    my_collection.drop()
-    print "Status: 303 See other"
-    print "Location: /"
-    print
+
+
+#print """\
+#Content-Type: text/html\n
+#<html><body>
+#<p>%s</p>
+#</body></html>
+#""" % (message,)

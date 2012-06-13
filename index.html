@@ -92,7 +92,9 @@
     </div>
     <h2>Nieuwe set uploaden</h2>
     <form enctype="multipart/form-data" action="scripts/upload-file.py" method=post>
-        <p><label for=somefile>Bestand: </label><input type=file name=somefile value="selecteer een bestand" >
+        <p>Collectie naam:<input type="text" name="collection"></p>
+        <p>Shapefile: <input type="file" name="shp"></p>
+        <p>Dbf file: <input type="file" name="dbf"></p>
         <p><input type=submit value="Uploaden">
     </form>
 </div> <!-- content -->
