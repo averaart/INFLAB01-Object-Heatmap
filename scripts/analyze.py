@@ -19,17 +19,18 @@ db = connection.opendata
 
 # request is a dictionary. Each key is the name of a set. Each value is a list of attribute-names.
 # This should, of course, be supplied via GET or POST values later on.
-request = {"Straatmeubilair": ["STRAATNAAM", "THEMA"],
-           "Lichtmastlocaties": ["STRAATNAAM"]}
+request = {"speeltoestellen": ["MATERIAAL"],
+           "CivieleKunstwerken": ["MATERIAAL"]}
 
 # bounds defines the area that's being examined.
 # The two tuples indicate lower-left and upper-right corners of the area.
-bounds = ((51.91434265748467, 4.461112261746166), (51.92762956096251, 4.482655764553783))
+# bounds = ((51.91434265748467, 4.461112261746166), (51.92762956096251, 4.482655764553783))  # <---- 1km3 gebied
+bounds = ((51.807766, 4.286041), (51.967962, 4.700775))
 
 # raster_size defines how many fields the raster has on ONE side.
 # A value of 20 would result in a raster of (20 * 20 =) 400 fields.
 # This means that the pearson's formula will be called with lists of 400 elements each.
-raster_size = 10
+raster_size = 3
 
 # determine the width and height of one raster field
 width = (bounds[1][1]-bounds[0][1]) / raster_size
@@ -96,10 +97,12 @@ for request_set in request:
     # that value for each raster_field.
     sets[request_set] = objects.inline_map_reduce(map, reduce, query={"location": {"$within" : {"$box" : bounds}}})
 
-pprint(sets)
+#pprint(sets)
 
 # Here the script loops through all acquired lists (by looping through data-sets, attributes and their possible values)
 # and runs the pearson function against all acquired lists (including itself).
+
+macro_correlations = []
 
 for set in sets:
     print set
@@ -107,9 +110,20 @@ for set in sets:
         for value_x in attribute["value"]:
             for set_y in sets:
                 for attribute_y in sets[set_y]:
+                    if set == set_y:
+                        print "bla"
                     for value_y in attribute_y["value"]:
                         my_pearson = pearson(attribute["value"][value_x], attribute_y["value"][value_y])
-                        if fabs(my_pearson) > 0.9 and my_pearson != 2.0 and value_x != value_y:
+                        macro_correlations.append({"set_a":{"set":set,
+                                                            "attribute":attribute["_id"],
+                                                            "value":value_x},
+                                                   "set_b":{"set":set_y,
+                                                            "attribute":attribute_y["_id"],
+                                                            "value":value_y},
+                                                   "pearsons":my_pearson})
+                        if fabs(my_pearson) > 0.5 and my_pearson != 2.0 and value_x != value_y:
                             print "\t"+set+" - "+attribute["_id"]+" - "+value_x+" <---> "+set_y+" - "+attribute_y["_id"]+" - "+value_y+": "+str(my_pearson)
 
-
+print len(macro_correlations)
+macro_correlations = [cor for cor in macro_correlations if cor["set_a"]!=cor["set_b"]]
+print len(macro_correlations)
