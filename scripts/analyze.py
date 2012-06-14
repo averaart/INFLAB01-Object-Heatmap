@@ -8,6 +8,7 @@ from pymongo import Connection
 from bson.code import Code
 from pearson import pearson
 from math import fabs
+import simplejson, json
 
 basicConfig(level=DEBUG,
     format='%(asctime)s %(levelname)-8s %(message)s',
@@ -19,8 +20,11 @@ db = connection.opendata
 
 # request is a dictionary. Each key is the name of a set. Each value is a list of attribute-names.
 # This should, of course, be supplied via GET or POST values later on.
-request = {"speeltoestellen": ["MATERIAAL"],
-           "CivieleKunstwerken": ["MATERIAAL"]}
+request = {"speeltoestellen": ["TYPE"],
+           "CivieleKunstwerken": ["TYPE"]}
+
+# threshold indicates the lowest absolute correlation figure to report
+threshold = 0.7
 
 # bounds defines the area that's being examined.
 # The two tuples indicate lower-left and upper-right corners of the area.
@@ -30,7 +34,7 @@ bounds = ((51.807766, 4.286041), (51.967962, 4.700775)) # <---- Rotterdam
 # raster_size defines how many fields the raster has on ONE side.
 # A value of 20 would result in a raster of (20 * 20 =) 400 fields.
 # This means that the pearson's formula will be called with lists of 400 elements each.
-raster_size = 50
+raster_size = 30
 
 # determine the width and height of one raster field
 width = (bounds[1][1]-bounds[0][1]) / raster_size
@@ -111,7 +115,7 @@ for set in sets:
         for ix, value_x in enumerate(attribute["value"]):
             for set_y in sets:
                 for attribute_y in sets[set_y]:
-                    if attribute_y["_id"] == "TOAAL": continue
+                    if attribute_y["_id"] == "TOTAAL": continue
                     for iy, value_y in enumerate(attribute_y["value"]):
                         # So that we don't check connections in both directions
                         if set == set_y and attribute["_id"] == attribute_y["_id"] and ix >= iy:
@@ -133,6 +137,8 @@ for set in sets:
 #                            print "\t"+set+" - "+attribute["_id"]+" - "+value_x+" <---> "+set_y+" - "+attribute_y["_id"]+" - "+value_y+": "+str(my_pearson)
 
 
-macro_correlations = [cor for cor in macro_correlations if fabs(cor["pearsons"])>0.5 and cor["pearsons"]!=2.0]
+macro_correlations = [cor for cor in macro_correlations if fabs(cor["pearsons"])>threshold and cor["pearsons"]!=2.0]
 
-pprint(macro_correlations)
+print "Content-type: application/json"
+print
+print json.dumps(macro_correlations)

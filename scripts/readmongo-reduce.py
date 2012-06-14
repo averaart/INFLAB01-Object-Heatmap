@@ -24,7 +24,7 @@ fs = cgi.FieldStorage()
 if fs.has_key('set'):
     objects = db[fs["set"].value]
 else:
-    objects = db.new_objects
+    objects = db.CivieleKunstwerken
 
 
 if fs.has_key('bounds'):
