@@ -145,65 +145,77 @@ window.onload = function(){
                 .val('whatever');
     }
 
+    // Adds an function to the analyze button to do something real.
     $("#start-analyzer").click(function() {
+        // The request url.
         var url = "scripts/analyze.py?bounds=" + map.getBounds() + "";
 
+        // We store what data sets and attributes are selected
         var dataSets = [];
-        var setAttributen = [];
+        var setAttributen = []; // Stores arrays with attributes
 
+        // Check each data set select-field.
         $(".collection-selector").find(".collections option:selected").each(function(i, v){
-            //Voor iedere collectie die geselecteerd is en waarvan de waarde niet '-' is.
+            // Check if the value of a data set is not equal to '-'.
             if($(this).text() != "-") {
-                // Kijk of de set niet al een keer eerder geselecteerd is, en dus al
-                // opgenomen is in sets.
+                // Check if the set is not selected before
                 if(jQuery.inArray($(this).text(), dataSets) == -1) {
                     var selector = ".attributes." + $(this).parent().attr("id") + " option:selected";
-                    var setAttr = [];
+                    var attributes = [];    // For a single data set
 
+                    // Store each selected attribute
                     $(selector).each(function(j, w) {
                         if($(this).text() != "-") {
-                            setAttr.push($(this).text());
+                            if(jQuery.inArray($(this).text(), attributes) == -1) {
+                                attributes.push($(this).text());
+                            }
                         }
                     });
 
-                    if($(setAttr).size() > 0) {
+                    // Store the data set and it attributes only if at least one attributes was selected, .
+                    if($(attributes).size() > 0) {
                         dataSets.push($(this).text());
-                        setAttributen.push(setAttr);
+                        setAttributen.push(attributes);
                     }
                 }
             }
         });
 
-        var setCall = "{"
-        $.each(dataSets, function(index, value) {
-            var attrCal = "[";
-            $.each(setAttributen[index], function (index, value) {
+        // Kijk of er een geldige selectie van data sets (en attributen) is.
+        if($(dataSets).size() > 0) {
+            // Generate data set call
+            var setCall = "{"
+            $.each(dataSets, function(index, value) {
+                var attrCal = "[";
+                $.each(setAttributen[index], function (index, value) {
+                    if(index != 0) {
+                        attrCal += ", ";
+                    }
+                    attrCal += "\"" + value + "\"";
+                });
+                attrCal += "]";
                 if(index != 0) {
-                    attrCal += ", ";
+                    setCall += ", "
                 }
-                attrCal += "\"" + value + "\"";
+                setCall += "\"" + value + "\": " + attrCal;
             });
-            attrCal += "]";
+            setCall += "}";
+            url += "&sets=" + setCall;
 
-            if(index != 0) {
-                setCall += ", "
+            // Generate rasterSize option
+            if($.isNumeric($("#rasterSize").val())) {
+                url += "&rasterSize=" + $("#rasterSize").val();
+            } else {
+                url += "&rasterSize=10";
             }
-            setCall += "\"" + value + "\": " + attrCal;
-        });
-        setCall += "}";
-
-        url += "&sets=" + setCall;
-
-        if($.isNumeric($("#rasterSize").val())) {
-            url += "&rasterSize=" + $("#rasterSize").val();
+            $.ajax({ url: url }).done(
+                    function (data) {
+                        $("#associations-results").html(data);
+                    }
+            );
         } else {
-            url += "&rasterSize=10";
+            $("#associations-results").html("Geen geldige selectie van data set(s) en attributen.");
         }
-        $.ajax({ url: url }).done(
-            function (data) {
-                $("#associations-results").html(data);
-            }
-        );
     });
 
     $.ajax({ url: "scripts/find_collections.py" }).done(
