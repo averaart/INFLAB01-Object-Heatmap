@@ -1,4 +1,4 @@
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns:aad="http://www.w3.org/1999/xhtml">
 <head>
   <meta name="generator" content=
   "HTML Tidy for Linux/x86 (vers 11 February 2007), see www.w3.org" />
@@ -54,6 +54,11 @@
     .attributes {
         width: 110px;
     }
+     
+    #upload{
+        clear: both;
+        padding-top: 1em;
+    }
 
 </style>
 </head>
@@ -67,8 +72,11 @@
 
 	<form class="collection-selector">
         <h2>Analyse</h2>
+        <div>
         <h3>Rastergrootte:</h3>
-        <input id="rasterSize" type="text" name="raster-size" />
+        <input id="rasterSize" type="text" name="raster-size" value="10"/>
+        <h3>Minimum correlatie:</h3>
+        <input id="threshold" type="text" name="raster-size" value="0.5"/>
         <h3>Datasets en attributen:</h3>
         <div>
             <select id="collections1" class="collections"><option value="">-</option></select>
@@ -97,8 +105,11 @@
 
         <input type="button" id="start-analyzer" value="Analyseer">
 	</form>
-    <div id="debug">...</div><br />
+        <div id="associations-results">
+            <p>Hier komen de verbanden:</p>
+        </div>
     </div>
+    <div id="upload">
     <h2>Nieuwe set uploaden</h2>
     <form enctype="multipart/form-data" action="scripts/upload-file.py" method=post>
         <p>Collectie naam:<input type="text" name="collection"></p>
@@ -106,9 +117,8 @@
         <p>Dbf file: <input type="file" name="dbf"></p>
         <p><input type=submit value="Uploaden">
     </form>
-    <div id="associations-results">
-        <p>Hier komen de verbanden:</p>
     </div>
+
 </div><!-- content -->
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
@@ -208,11 +218,48 @@ window.onload = function(){
             } else {
                 url += "&rasterSize=10";
             }
+
+            // Generate threshold option
+            if($.isNumeric($("#threshold").val())) {
+                url += "&threshold=" + $("#threshold").val();
+            } else {
+                url += "&threshold=0.5";
+            }
+
+            $("#associations-results").html( '<img src="/img/loading.gif" alt="loading">' );
             $.ajax({ url: url }).done(
-                    function (data) {
-                        $("#associations-results").html(data);
-                    }
-            );
+                    function( data ) {
+                        var result = "<table cellspacing='15px'><thead><td colspan='2'>Serie 1</td><td colspan='2'>Serie 2</td><td>Correlatie</td></thead>";
+                        var corr = eval (data);
+
+                        $.each(data, function(i, item){
+                            result += "<tr><td>" +
+                                    "Set: <br>" +
+                                    "Attribuut: <br>" +
+                                    "Waarde: " +
+                                    "</td>" +
+                                    "<td>" +
+                                    item["set_a"]["set"]+"<br>" +
+                                    item["set_a"]["attribute"]+"<br>" +
+                                    item["set_a"]["value"] +
+                                    "</td>" +
+                                    "<td>" +
+                                    "Set: <br>" +
+                                    "Attribuut: <br>" +
+                                    "Waarde: " +
+                                    "</td>" +
+                                    "<td>" +
+                                    item["set_b"]["set"]+"<br>" +
+                                    item["set_b"]["attribute"]+"<br>" +
+                                    item["set_b"]["value"] +
+                                    "</td>" +
+                                    "<td>"+item["pearsons"]+"</td></tr>";
+                        });
+
+                        result += "</table>";
+                        $("#associations-results").html( result );
+                    })
+
         } else {
             $("#associations-results").html("Geen geldige selectie van data set(s) en attributen.");
         }

@@ -9,6 +9,10 @@ from bson.code import Code
 from pearson import pearson
 from math import fabs
 import simplejson, json
+import cgi
+import urllib
+
+fs = cgi.FieldStorage()
 
 basicConfig(level=DEBUG,
     format='%(asctime)s %(levelname)-8s %(message)s',
@@ -18,23 +22,34 @@ basicConfig(level=DEBUG,
 connection = Connection()
 db = connection.opendata
 
+
 # request is a dictionary. Each key is the name of a set. Each value is a list of attribute-names.
 # This should, of course, be supplied via GET or POST values later on.
 request = {"speeltoestellen": ["TYPE"],
            "CivieleKunstwerken": ["TYPE"]}
+if fs.has_key('sets'):
+    request = eval(urllib.url2pathname(fs['sets'].value))
+
 
 # threshold indicates the lowest absolute correlation figure to report
 threshold = 0.7
+if fs.has_key('threshold'):
+    threshold = float(fs['threshold'].value)
 
 # bounds defines the area that's being examined.
 # The two tuples indicate lower-left and upper-right corners of the area.
+#
 # bounds = ((51.91434265748467, 4.461112261746166), (51.92762956096251, 4.482655764553783))  # <---- 1km3 gebied
 bounds = ((51.807766, 4.286041), (51.967962, 4.700775)) # <---- Rotterdam
+if fs.has_key('bounds'):
+    bounds = eval(urllib.url2pathname(fs["bounds"].value))
 
 # raster_size defines how many fields the raster has on ONE side.
 # A value of 20 would result in a raster of (20 * 20 =) 400 fields.
 # This means that the pearson's formula will be called with lists of 400 elements each.
 raster_size = 30
+if fs.has_key('rasterSize'):
+    raster_size = int(fs["rasterSize"].value)
 
 # determine the width and height of one raster field
 width = (bounds[1][1]-bounds[0][1]) / raster_size
