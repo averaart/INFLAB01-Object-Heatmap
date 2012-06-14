@@ -62,7 +62,14 @@
 <div id="content">
 	<div id="mapArea"></div>
     <div id="rest">
+
+
+
 	<form class="collection-selector">
+        <h2>Analyse</h2>
+        <h3>Rastergrootte:</h3>
+        <input id="rasterSize" type="text" name="raster-size" />
+        <h3>Datasets en attributen:</h3>
         <div>
             <select id="collections1" class="collections"><option value="">-</option></select>
             <select id="attributes1-1" class="attributes collections1"><option value="">-</option></select>
@@ -87,6 +94,8 @@
             <select id="attributes3-4" class="attributes collections3"><option value="">-</option></select>
             <select id="attributes3-5" class="attributes collections3"><option value="">-</option></select>
         </div>
+
+        <input type="button" id="start-analyzer" value="Analyseer">
 	</form>
     <div id="debug">...</div><br />
     </div>
@@ -97,7 +106,10 @@
         <p>Dbf file: <input type="file" name="dbf"></p>
         <p><input type=submit value="Uploaden">
     </form>
-</div> <!-- content -->
+    <div id="associations-results">
+        <p>Hier komen de verbanden:</p>
+    </div>
+</div><!-- content -->
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
 <script type="text/javascript">
@@ -132,6 +144,67 @@ window.onload = function(){
                 .append('<option value="">-</option>')
                 .val('whatever');
     }
+
+    $("#start-analyzer").click(function() {
+        var url = "scripts/analyze.py?bounds=" + map.getBounds() + "";
+
+        var dataSets = [];
+        var setAttributen = [];
+
+        $(".collection-selector").find(".collections option:selected").each(function(i, v){
+            //Voor iedere collectie die geselecteerd is en waarvan de waarde niet '-' is.
+            if($(this).text() != "-") {
+                // Kijk of de set niet al een keer eerder geselecteerd is, en dus al
+                // opgenomen is in sets.
+                if(jQuery.inArray($(this).text(), dataSets) == -1) {
+                    var selector = ".attributes." + $(this).parent().attr("id") + " option:selected";
+                    var setAttr = [];
+
+                    $(selector).each(function(j, w) {
+                        if($(this).text() != "-") {
+                            setAttr.push($(this).text());
+                        }
+                    });
+
+                    if($(setAttr).size() > 0) {
+                        dataSets.push($(this).text());
+                        setAttributen.push(setAttr);
+                    }
+                }
+            }
+        });
+
+        var setCall = "{"
+        $.each(dataSets, function(index, value) {
+            var attrCal = "[";
+            $.each(setAttributen[index], function (index, value) {
+                if(index != 0) {
+                    attrCal += ", ";
+                }
+                attrCal += "\"" + value + "\"";
+            });
+            attrCal += "]";
+
+            if(index != 0) {
+                setCall += ", "
+            }
+            setCall += "\"" + value + "\": " + attrCal;
+        });
+        setCall += "}";
+
+        url += "&sets=" + setCall;
+
+        if($.isNumeric($("#rasterSize").val())) {
+            url += "&rasterSize=" + $("#rasterSize").val();
+        } else {
+            url += "&rasterSize=10";
+        }
+        $.ajax({ url: url }).done(
+            function (data) {
+                $("#associations-results").html(data);
+            }
+        );
+    });
 
     $.ajax({ url: "scripts/find_collections.py" }).done(
             function( msg ) {
