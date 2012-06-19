@@ -40,6 +40,7 @@ if fs.has_key('threshold'):
 # The two tuples indicate lower-left and upper-right corners of the area.
 #
 # bounds = ((51.91434265748467, 4.461112261746166), (51.92762956096251, 4.482655764553783))  # <---- 1km3 gebied
+# bounds = ((50.0, 4.0), (51.0, 5.0)) # <---- TEST
 bounds = ((51.807766, 4.286041), (51.967962, 4.700775)) # <---- Rotterdam
 if fs.has_key('bounds'):
     bounds = eval(urllib.url2pathname(fs["bounds"].value))
@@ -47,7 +48,7 @@ if fs.has_key('bounds'):
 # raster_size defines how many fields the raster has on ONE side.
 # A value of 20 would result in a raster of (20 * 20 =) 400 fields.
 # This means that the pearson's formula will be called with lists of 400 elements each.
-raster_size = 30
+raster_size = 20
 if fs.has_key('rasterSize'):
     raster_size = int(fs["rasterSize"].value)
 
@@ -156,7 +157,7 @@ def build_correlations(sets):
 
 sets = map_sets(bounds, raster_size)
 macro_correlations = build_correlations(sets)
-macro_correlations = [cor for cor in macro_correlations if fabs(cor["pearsons"])>threshold and cor["pearsons"]!=2.0]
+#macro_correlations = [cor for cor in macro_correlations if fabs(cor["pearsons"])>threshold and cor["pearsons"]!=2.0]
 
 for cor in macro_correlations:
     cor["sub"] = []
@@ -169,11 +170,11 @@ sub_correlations = []
 for y in range(zones):
     for x in range(zones):
 
-#        print "Vlak "+str(raster_size*y+(x+1))
+        print "Vlak "+str(raster_size*y+(x+1))
 
         sub_bounds = (
-            (bounds[1][0]-((y+1)*height),bounds[0][1]-(x*width)),
-            (bounds[1][0]-(y*height),bounds[0][1]-((x+1)*width))
+            (bounds[1][0]-((y+1)*height),bounds[0][1]+(x*width)),
+            (bounds[1][0]-(y*height),bounds[0][1]+((x+1)*width))
             )
         sub_sets = map_sets(sub_bounds, raster_size)
 
@@ -186,9 +187,10 @@ for y in range(zones):
         sub_correlations = build_correlations(sub_sets)
 
         for sub_cor in sub_correlations:
-            for cor in [cor for cor in macro_correlations
+            filtered = [cor for cor in macro_correlations
                         if (cor["set_a"] == sub_cor["set_a"] and cor["set_b"] == sub_cor["set_b"])
-                        or (cor["set_b"] == sub_cor["set_a"] and cor["set_b"] == sub_cor["set_a"])]:
+                        or (cor["set_b"] == sub_cor["set_a"] and cor["set_b"] == sub_cor["set_a"])]
+            for cor in filtered:
                 last_index = len(cor["sub"])-1
                 cor["sub"][last_index] = sub_cor["pearsons"]
 
