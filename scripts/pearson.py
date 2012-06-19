@@ -4,6 +4,7 @@ from math import sqrt
 
 def pearson(x,y):
     if len(x) != len (y): return 2
+    if len(x) == 1: return 2
 
     xAvg = 0.0
     yAvg = 0.0
