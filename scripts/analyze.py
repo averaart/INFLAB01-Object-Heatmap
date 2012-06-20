@@ -26,21 +26,21 @@ db = connection.opendata
 
 # request is a dictionary. Each key is the name of a set. Each value is a list of attribute-names.
 # This should, of course, be supplied via GET or POST values later on.
-request = {"Verkeersborden": ["OMSCHRIJVI"],
-           "Groen": ["THEMA"]}
+request = {"CivieleKunstwerken": ["TYPE", "MATERIAAL"],
+           "speeltoestellen": ["TYPE", "MATERIAAL"]}
 if fs.has_key('sets'):
     request = eval(urllib.url2pathname(fs['sets'].value))
 
 
 # threshold indicates the lowest absolute correlation figure to report
-threshold = 0.7
+threshold = 0.9
 if fs.has_key('threshold'):
     threshold = float(fs['threshold'].value)
 
 # bounds defines the area that's being examined.
 # The two tuples indicate lower-left and upper-right corners of the area.
 #
-# bounds = ((51.91434265748467, 4.461112261746166), (51.92762956096251, 4.482655764553783))  # <---- 1km3 gebied
+#bounds = ((51.91434265748467, 4.461112261746166), (51.92762956096251, 4.482655764553783))  # <---- 1km3 gebied
 #bounds = ((50.0, 3.0), (52.0, 5.0)) # <---- TEST
 bounds = ((51.807766, 4.286041), (51.967962, 4.700775)) # <---- Rotterdam
 if fs.has_key('bounds'):
@@ -78,44 +78,69 @@ def map_sets(bounds, raster_size):
 
         # The first part of the map function determines in what raster-field the object is located, stored as "index"
         # Then, for each attribute in "request" emit() is called with the value of the attribute and its place in the list.
-        map = Code("""
-        function (key, values){
+        map = """
+        function (){
             var attributes = """+str(attributes)+""";
             var lat = this.location.lat;
             var lng = this.location.lon;
             var rel_lat = lat - """+str(bounds[0][0])+""";
             var rel_lng = lng - """+str(bounds[0][1])+""";
-            y = Math.floor(rel_lat / """+str(height)+""");
-            x = Math.floor(rel_lng / """+str(width)+""");
-            index = x + (y * """+str(raster_size)+""");
+            var y = Math.floor(rel_lat / """+str(height)+""");
+            var x = Math.floor(rel_lng / """+str(width)+""");
+            var index = x + (y * """+str(raster_size)+""");
+            var length = """+str(raster_size**2)+""";
             for (i in attributes){
-                emit(attributes[i], {value: this.properties[attributes[i]], index: index});
+                var key = { attribute: attributes[i], value: this.properties[attributes[i]] };
+                var fields = new Array();
+                for (var i=0; i<length; i++){
+                    if (i==index){
+                        fields.push(1);
+                    } else {
+                        fields.push(0);
+                    }
+                }
+                emit(key, { fields: fields });
             }
-            emit("TOTAAL",{"TOTAAL":1, index: index});
+            var key = { attribute: "TOTAAL", value: "TOTAAL" }
+            var fields = new Array();
+            for (var i=0; i<length; i++){
+                if (i==index){
+                    fields.push(1);
+                } else {
+                    fields.push(0);
+                }
+            }
+            emit(key, { fields: fields });
         }
-        """)
+        """
+
+#        print map
+        map = Code(map)
 
         # The emit() calls by the map function result in calls of the reduce function for each unique key (in this case
         # the attribute-names) followed by a list of values from each emit() for that unique key.
         # The reduce function builds an array for each possible value, where each element of the array represents a field
         # on the raster. All elements are set to zero. Then all occurrences of that value are counted for each field.
-        reduce = Code("""
+        reduce = """
         function (key, values) {
-            var result = {};
-
-            values.forEach(function(value) {
-                if (!result[value.value]){
-                    result[value.value]=[]
-                    for (var i=0; i<"""+str(raster_size*raster_size)+"""; i++){
-                        result[value.value][i]=0;
-                    }
+            var length = """+str(raster_size**2)+""";
+            var fields = new Array();
+            for (var i=0; i<length; i++){
+                fields.push(0);
+            }
+            for(var i in values) {
+                for (var j=0; j<length; j++){
+                    fields[j]+=values[i].fields[j];
                 }
-                result[value.value][value.index] += 1;
-            });
+            }
 
-            return result;
+            return {fields: fields};
         }
-        """)
+        """
+
+#        print
+#        print reduce
+        reduce = Code(reduce)
 
         # sets is a dictionary where the key is the name of a data-set and the value is a list of dictionaries.
         # In each dictionary, "_id" contains the name of an attribute and "value" contains a new dictionary.
@@ -123,7 +148,17 @@ def map_sets(bounds, raster_size):
         # that value for each raster_field.
         sets[request_set] = objects.inline_map_reduce(map, reduce, query={"location": {"$within" : {"$box" : bounds}}})
 
-    return sets
+    result = {}
+
+    for set in sets:
+        result[set]={}
+        for comb in sets[set]:
+            if not result[set].has_key(comb['_id']['attribute']):
+                result[set][comb['_id']['attribute']] = {}
+            if not result[set][comb['_id']['attribute']].has_key(comb['_id']['value']):
+                result[set][comb['_id']['attribute']][comb['_id']['value']] = comb['value']['fields']
+
+    return result
 
 def build_correlations(sets):
     # Here the script loops through all acquired lists (by looping through data-sets, attributes and their possible values)
@@ -131,84 +166,124 @@ def build_correlations(sets):
 
     correlations = []
 
-    for set in sets:
-        for jx, attribute in enumerate(sets[set]):
-            if attribute["_id"] == "TOTAAL":
-#                print set.ljust(20),
-#                print sum([x for x in attribute['value']['undefined'] if not math.isnan(x)])
-#                print attribute['value']['undefined']
+    for set_i, set_x in enumerate(sets):
+        set_total_x = sets[set_x]["TOTAAL"]["TOTAAL"]
+        for att_i, attribute_x in enumerate(sets[set_x]):
+            if attribute_x == "TOTAAL":
                 continue
-            for ix, value_x in enumerate(attribute["value"]):
-                for set_y in sets:
-                    for jy, attribute_y in enumerate(sets[set_y]):
-                        if attribute_y["_id"] == "TOTAAL": continue
-                        for iy, value_y in enumerate(attribute_y["value"]):
-                            # So that we don't check connections in both directions
-                            if set == set_y and attribute["_id"] == attribute_y["_id"] and ix >= iy:
+            for val_i, value_x in enumerate(sets[set_x][attribute_x]):
+                for set_j, set_y in enumerate(sets):
+                    set_total_y = sets[set_y]["TOTAAL"]["TOTAAL"]
+                    set_total = [sum(pair) for pair in zip(set_total_x, set_total_y)]
+                    count_x = [val for enum, val in enumerate(sets[set_x][attribute_x][value_x]) if set_total[enum]>0]
+                    if len(count_x)<=1:
+                        continue
+                    for att_j, attribute_y in enumerate(sets[set_y]):
+                        if attribute_y == "TOTAAL":
+                            continue
+                        for val_j, value_y in enumerate(sets[set_y][attribute_y]):
+                            if set_x == set_y and attribute_x == attribute_y and val_i >= val_j:
                                 continue
-                            set_total_a = [att for att in sets[set] if att["_id"]=="TOTAAL"][0]["value"]["undefined"][:(raster_size**2)]
-                            set_total_b = [att for att in sets[set_y] if att["_id"]=="TOTAAL"][0]["value"]["undefined"][:(raster_size**2)]
-                            set_total = [sum(pair) for pair in zip(set_total_a, set_total_b)]
-                            set_att_a = [val for enum, val in enumerate(attribute["value"][value_x]) if set_total[enum-1]>0]
-                            set_att_b = [val for enum, val in enumerate(attribute_y["value"][value_y]) if set_total[enum-1]>0]
-                            my_pearson = pearson(set_att_a, set_att_b)
-                            correlations.append({"set_a":{"set":set,
-                                                          "attribute":attribute["_id"],
-                                                          "value":value_x},
+                            count_y = [val for enum, val in enumerate(sets[set_y][attribute_y][value_y]) if set_total[enum]>0]
+                            if len(count_y)<=1:
+                                continue
+                            my_pearson = pearson(count_x, count_y)
+                            correlations.append({"set_a":{"set":set_x,
+                                                          "attribute":attribute_x,
+                                                          "value":value_x,
+                                                          "amount-value": sum(count_x),
+                                                          "amount-total": sum(set_total_x)},
                                                  "set_b":{"set":set_y,
-                                                          "attribute":attribute_y["_id"],
-                                                          "value":value_y},
+                                                          "attribute":attribute_y,
+                                                          "value":value_y,
+                                                          "amount-value": sum(count_y),
+                                                          "amount-total": sum(set_total_y)},
                                                  "pearsons":my_pearson})
+
+
+#    for set in sets:
+#        for jx, attribute in enumerate(sets[set]):
+#            if attribute["_id"] == "TOTAAL":
+##                print set.ljust(20),
+##                print sum([x for x in attribute['value']['undefined'] if not math.isnan(x)])
+##                print attribute['value']['undefined']
+#                continue
+#            for ix, value_x in enumerate(attribute["value"]):
+#                for set_y in sets:
+#                    for jy, attribute_y in enumerate(sets[set_y]):
+#                        if attribute_y["_id"] == "TOTAAL": continue
+#                        for iy, value_y in enumerate(attribute_y["value"]):
+#                            # So that we don't check connections in both directions
+#                            if set == set_y and attribute["_id"] == attribute_y["_id"] and ix >= iy:
+#                                continue
+#                            set_total_a = [att for att in sets[set] if att["_id"]=="TOTAAL"][0]["value"]["undefined"][:(raster_size**2)]
+#                            set_total_b = [att for att in sets[set_y] if att["_id"]=="TOTAAL"][0]["value"]["undefined"][:(raster_size**2)]
+#                            set_total = [sum(pair) for pair in zip(set_total_a, set_total_b)]
+#                            set_att_a = [val for enum, val in enumerate(attribute["value"][value_x]) if set_total[enum-1]>0]
+#                            set_att_b = [val for enum, val in enumerate(attribute_y["value"][value_y]) if set_total[enum-1]>0]
+#                            my_pearson = pearson(set_att_a, set_att_b)
+#                            correlations.append({"set_a":{"set":set,
+#                                                          "attribute":attribute["_id"],
+#                                                          "value":value_x},
+#                                                 "set_b":{"set":set_y,
+#                                                          "attribute":attribute_y["_id"],
+#                                                          "value":value_y},
+#                                                 "pearsons":my_pearson})
 
     return correlations
 
 
 #print "Het hele gebied"
 sets = map_sets(bounds, raster_size)
+
+#pprint(sets)
 macro_correlations = build_correlations(sets)
 macro_correlations = [cor for cor in macro_correlations if fabs(cor["pearsons"])>threshold and cor["pearsons"]!=2.0]
 
-for cor in macro_correlations:
-    cor["sub"] = []
-
-#print "En nu voor de verdeling"
-
-width = (bounds[1][1]-bounds[0][1]) / zones
-height = (bounds[1][0]-bounds[0][0]) / zones
-
-sub_correlations = []
-
-for y in range(zones):
-    for x in range(zones):
-
-#        print "Vlak "+str(zones*y+(x+1))
-
-        sub_bounds = (
-            (bounds[1][0]-((y+1)*height),bounds[0][1]+(x*width)),
-            (bounds[1][0]-(y*height),bounds[0][1]+((x+1)*width))
-            )
-        sub_sets = map_sets(sub_bounds, raster_size)
-
-        for cor in macro_correlations:
-            cor["sub"].append("X")
-
-        if not all(sub_sets.values()):
-            continue
-
-        sub_correlations = build_correlations(sub_sets)
-
-        for sub_cor in sub_correlations:
-            filtered = [cor for cor in macro_correlations
-                        if (cor["set_a"] == sub_cor["set_a"] and cor["set_b"] == sub_cor["set_b"])
-                        or (cor["set_b"] == sub_cor["set_a"] and cor["set_b"] == sub_cor["set_a"])]
-            for cor in filtered:
-                last_index = len(cor["sub"])-1
-                cor["sub"][last_index] = sub_cor["pearsons"]
 
 
+#
 #for cor in macro_correlations:
-#    pprint(cor)
-
+#    cor["sub"] = []
+#
+##print "En nu voor de verdeling"
+#
+#width = (bounds[1][1]-bounds[0][1]) / zones
+#height = (bounds[1][0]-bounds[0][0]) / zones
+#
+#sub_correlations = []
+#
+#for y in range(zones):
+#    for x in range(zones):
+#
+##        print "Vlak "+str(zones*y+(x+1))
+#
+#        sub_bounds = (
+#            (bounds[1][0]-((y+1)*height),bounds[0][1]+(x*width)),
+#            (bounds[1][0]-(y*height),bounds[0][1]+((x+1)*width))
+#            )
+#        sub_sets = map_sets(sub_bounds, raster_size)
+#
+#        for cor in macro_correlations:
+#            cor["sub"].append("X")
+#
+#        if not all(sub_sets.values()):
+#            continue
+#
+#        sub_correlations = build_correlations(sub_sets)
+#
+#        for sub_cor in sub_correlations:
+#            filtered = [cor for cor in macro_correlations
+#                        if (cor["set_a"] == sub_cor["set_a"] and cor["set_b"] == sub_cor["set_b"])
+#                        or (cor["set_b"] == sub_cor["set_a"] and cor["set_b"] == sub_cor["set_a"])]
+#            for cor in filtered:
+#                last_index = len(cor["sub"])-1
+#                cor["sub"][last_index] = sub_cor["pearsons"]
+#
+#
+##for cor in macro_correlations:
+##    pprint(cor)
+#
 print "Content-type: application/json"
 print
 print json.dumps(macro_correlations)

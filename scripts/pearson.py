@@ -3,8 +3,13 @@ __author__ = 'averaart'
 from math import sqrt
 
 def pearson(x,y):
-    if len(x) != len (y): return 2
-    if len(x) == 1: return 2
+    if len(x) != len (y):
+        print "x en y zijn niet even lang"
+        return 2
+    if len(x) <= 1:
+        print "lijst te kort"
+        return 2
+
 
     xAvg = 0.0
     yAvg = 0.0
@@ -26,7 +31,9 @@ def pearson(x,y):
     denominator = sqrt(denomPartX * denomPartY)
 
 
-    if denominator == 0: return 2
+    if denominator == 0:
+        print "delen door nul mag niet"
+        return 2
 
     return numerator/denominator
 
