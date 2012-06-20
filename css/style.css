@@ -40,7 +40,6 @@ label {
 }
 
 #mapArea {
-    position:relative;
     float:left;
     width:500px;
     height:500px;
@@ -55,9 +54,9 @@ label {
 
 #controllers-analyser, #upload {
     float: left;
-    width: 800px;
+    width: 850px;
     padding: 20px;
-    background-color: #f5f5f5;
+    background-color: #f0f0f0;
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
     border-radius: 10px;
@@ -77,4 +76,14 @@ label {
 .ui-slider-horizontal,
 .ui-slider-handle.ui-state-default.ui-corner-all {
     border-color: #888;
+}
+
+.clearfix { display: inline-block; }
+.clearfix:after {
+    content: ".";
+    display: block;
+    clear: both;
+    visibility: hidden;
+    line-height: 0;
+    height: 0;
 }
