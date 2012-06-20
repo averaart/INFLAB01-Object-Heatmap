@@ -68,7 +68,8 @@
 <script type="text/javascript">
 
 var map;
-var analyzeResults = AnalyzeResults;
+var grid = Grid;
+var analyseResults = AnalyzeResults;
 
 window.onload = function(){
     $(function() {
@@ -79,8 +80,8 @@ window.onload = function(){
             step: 1,
             slide: function(event, ui){
                 $( "#raster-size-val" ).html( ui.value );
-                analyzeResults.columns = ui.value;
-                analyzeResults.rows = ui.value;
+                grid.columns = ui.value;
+                grid.rows = ui.value;
             }
         });
         $( "#min-correlation" ).slider({
@@ -111,7 +112,7 @@ window.onload = function(){
 	  disableDoubleClickZoom: false
 	};
 	map = new google.maps.Map(document.getElementById("mapArea"), myOptions);
-    analyzeResults.map = map;
+    grid.map = map;
 
     var clearSelect = function(selectElement){
         $("."+($(selectElement).attr('id'))).find('option')
@@ -123,7 +124,7 @@ window.onload = function(){
 
     // Adds an function to the analyze button to do something real.
     $("#start-analyzer").click(function() {
-        analyzeResults.removeGrid();
+        grid.removeGrid();
         // The request url.
         var url = "scripts/analyze.py?bounds=" + map.getBounds() + "";
 
@@ -191,6 +192,7 @@ window.onload = function(){
                         var corr = eval (data);
 
                         $.each(data, function(i, item){
+                            AnalyzeResults.fabricateCorrelation(item);
                             if (Math.abs(item["pearsons"]) > $("#min-correlation-val").html() ){
                                 result += "<tr><td>" +
                                         "Set: <br>" +
@@ -218,16 +220,17 @@ window.onload = function(){
 
                         result += "</table>";
                         $("#associations-results").html( result );
+
                     });
             alert(url);
         } else {
             $("#associations-results").html("Geen geldige selectie van data set(s) en attributen.");
         }
-        analyzeResults.buildGrid();
+        grid.buildGrid();
     });
 
     $("#reset-analyzer").click(function() {
-        analyzeResults.removeGrid();
+        grid.removeGrid();
         $("#associations-results").html('');
     });
 
