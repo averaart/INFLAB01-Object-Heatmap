@@ -2,13 +2,12 @@
 <head>
     <link href="css/ui-lightness/jquery-ui-1.8.21.custom.css" rel="stylesheet" type="text/css" />
     <link href="css/style.css" rel="stylesheet" type="text/css" />
-    <title></title>
+    <title>INFLAB01</title>
 </head>
 
 <body>
-<div id="content">
+<div id="content" class="clearfix">
 	<div id="mapArea"></div>
-
     <div id="controllers-analyser">
         <h2>Analyse</h2>
         <div class="controller">
@@ -49,10 +48,10 @@
             </div>
         </div>
         <input type="button" id="start-analyzer" value="Analyseer">
-        <input type="button" id="reset-analyzer" value="Reset">
+        <input type="button" id="reset-analyzer" value="Reset map">
         <div id="associations-results"></div>
     </div>
-    <div id="upload">
+    <div id="upload" class="clearfix">
         <h2>Nieuwe set uploaden</h2>
         <form enctype="multipart/form-data" action="scripts/upload-file.py" method="post">
             <div><label>Collectie naam:</label><input type="text" name="collection"></div>
@@ -61,18 +60,15 @@
             <div style="padding-top: 40px;"><input type=submit value="Uploaden"></div>
         </form>
     </div>
-
-
-
-
-
 </div><!-- content -->
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
 <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<script src="js/common.js"></script>
 <script type="text/javascript">
 
 var map;
+var analyzeResults = AnalyzeResults;
 
 window.onload = function(){
     $(function() {
@@ -83,6 +79,8 @@ window.onload = function(){
             step: 1,
             slide: function(event, ui){
                 $( "#raster-size-val" ).html( ui.value );
+                analyzeResults.columns = ui.value;
+                analyzeResults.rows = ui.value;
             }
         });
         $( "#min-correlation" ).slider({
@@ -113,6 +111,7 @@ window.onload = function(){
 	  disableDoubleClickZoom: false
 	};
 	map = new google.maps.Map(document.getElementById("mapArea"), myOptions);
+    analyzeResults.map = map;
 
     var clearSelect = function(selectElement){
         $("."+($(selectElement).attr('id'))).find('option')
@@ -120,10 +119,11 @@ window.onload = function(){
                 .end()
                 .append('<option value="">-</option>')
                 .val('whatever');
-    }
+    };
 
     // Adds an function to the analyze button to do something real.
     $("#start-analyzer").click(function() {
+        analyzeResults.removeGrid();
         // The request url.
         var url = "scripts/analyze.py?bounds=" + map.getBounds() + "";
 
@@ -180,20 +180,11 @@ window.onload = function(){
             url += "&sets=" + setCall;
 
             // Generate rasterSize option
-            if($.isNumeric($("#rasterSize").val())) {
-                url += "&rasterSize=" + $("#rasterSize").val();
-            } else {
-                url += "&rasterSize=10";
-            }
-
+            url += "&rasterSize=" + $("#raster-size-val").html();
             // Generate threshold option
-            if($.isNumeric($("#threshold").val())) {
-                url += "&threshold=" + $("#threshold").val();
-            } else {
-                url += "&threshold=0.5";
-            }
+            url += "&threshold=" + $("#min-correlation-val").html();
 
-            $("#associations-results").html( '<img src="/img/loading.gif" alt="loading">' );
+            $("#associations-results").html( '<img src="img/loading.gif" alt="loading">' );
             $.ajax({ url: url }).done(
                     function( data ) {
                         var result = "<table cellspacing='15px'><thead><td colspan='2'>Serie 1</td><td colspan='2'>Serie 2</td><td>Correlatie</td></thead>";
@@ -225,11 +216,17 @@ window.onload = function(){
 
                         result += "</table>";
                         $("#associations-results").html( result );
-                    })
-
+                    });
+            alert(url);
         } else {
             $("#associations-results").html("Geen geldige selectie van data set(s) en attributen.");
         }
+        analyzeResults.buildGrid();
+    });
+
+    $("#reset-analyzer").click(function() {
+        analyzeResults.removeGrid();
+        $("#associations-results").html('');
     });
 
     $.ajax({ url: "scripts/find_collections.py" }).done(
@@ -262,9 +259,7 @@ window.onload = function(){
 	                	clearSelect(this);
 	                }
 	            });
-
 //                $('#collections1 :nth-child(2)').attr('selected', 'selected')
-
             });
 
 };
