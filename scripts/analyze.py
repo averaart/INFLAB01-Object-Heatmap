@@ -33,7 +33,7 @@ if fs.has_key('sets'):
 
 
 # threshold indicates the lowest absolute correlation figure to report
-threshold = 0.9
+threshold = 0.5
 if fs.has_key('threshold'):
     threshold = float(fs['threshold'].value)
 
@@ -49,7 +49,7 @@ if fs.has_key('bounds'):
 # raster_size defines how many fields the raster has on ONE side.
 # A value of 20 would result in a raster of (20 * 20 =) 400 fields.
 # This means that the pearson's formula will be called with lists of 400 elements each.
-raster_size = 3
+raster_size = 30
 if fs.has_key('rasterSize'):
     raster_size = int(fs["rasterSize"].value)
 
@@ -164,7 +164,7 @@ def build_correlations(sets):
     # Here the script loops through all acquired lists (by looping through data-sets, attributes and their possible values)
     # and runs the pearson function against all acquired lists (including itself).
 
-    correlations = []
+    correlations = {}
 
     for set_i, set_x in enumerate(sets):
         set_total_x = sets[set_x]["TOTAAL"]["TOTAAL"]
@@ -182,13 +182,14 @@ def build_correlations(sets):
                         if attribute_y == "TOTAAL":
                             continue
                         for val_j, value_y in enumerate(sets[set_y][attribute_y]):
-                            if set_x == set_y and attribute_x == attribute_y and val_i >= val_j:
+                            if set_x == set_y and attribute_x == attribute_y and value_x == value_y:
                                 continue
                             count_y = [val for enum, val in enumerate(sets[set_y][attribute_y][value_y]) if set_total[enum]>0]
                             if len(count_y)<=1:
                                 continue
                             my_pearson = pearson(count_x, count_y)
-                            correlations.append({"set_a":{"set":set_x,
+                            key = str(set_x)+"-"+str(attribute_x)+"-"+str(value_x)+"-"+str(set_y)+"-"+str(attribute_y)+"-"+str(value_y)
+                            correlations[key] = ({"set_a":{"set":set_x,
                                                           "attribute":attribute_x,
                                                           "value":value_x,
                                                           "amount-value": sum(count_x),
@@ -200,36 +201,6 @@ def build_correlations(sets):
                                                           "amount-total": sum(set_total_y)},
                                                  "pearsons":my_pearson})
 
-
-#    for set in sets:
-#        for jx, attribute in enumerate(sets[set]):
-#            if attribute["_id"] == "TOTAAL":
-##                print set.ljust(20),
-##                print sum([x for x in attribute['value']['undefined'] if not math.isnan(x)])
-##                print attribute['value']['undefined']
-#                continue
-#            for ix, value_x in enumerate(attribute["value"]):
-#                for set_y in sets:
-#                    for jy, attribute_y in enumerate(sets[set_y]):
-#                        if attribute_y["_id"] == "TOTAAL": continue
-#                        for iy, value_y in enumerate(attribute_y["value"]):
-#                            # So that we don't check connections in both directions
-#                            if set == set_y and attribute["_id"] == attribute_y["_id"] and ix >= iy:
-#                                continue
-#                            set_total_a = [att for att in sets[set] if att["_id"]=="TOTAAL"][0]["value"]["undefined"][:(raster_size**2)]
-#                            set_total_b = [att for att in sets[set_y] if att["_id"]=="TOTAAL"][0]["value"]["undefined"][:(raster_size**2)]
-#                            set_total = [sum(pair) for pair in zip(set_total_a, set_total_b)]
-#                            set_att_a = [val for enum, val in enumerate(attribute["value"][value_x]) if set_total[enum-1]>0]
-#                            set_att_b = [val for enum, val in enumerate(attribute_y["value"][value_y]) if set_total[enum-1]>0]
-#                            my_pearson = pearson(set_att_a, set_att_b)
-#                            correlations.append({"set_a":{"set":set,
-#                                                          "attribute":attribute["_id"],
-#                                                          "value":value_x},
-#                                                 "set_b":{"set":set_y,
-#                                                          "attribute":attribute_y["_id"],
-#                                                          "value":value_y},
-#                                                 "pearsons":my_pearson})
-
     return correlations
 
 
@@ -238,52 +209,63 @@ sets = map_sets(bounds, raster_size)
 
 #pprint(sets)
 macro_correlations = build_correlations(sets)
-macro_correlations = [cor for cor in macro_correlations if fabs(cor["pearsons"])>threshold and cor["pearsons"]!=2.0]
+#macro_correlations = dict((k, cor) for k, cor in macro_correlations.iteritems() if fabs(cor["pearsons"])>threshold and cor["pearsons"]!=2.0)
+
+for cor in macro_correlations:
+    macro_correlations[cor]["sub"] = []
+
+#print "En nu voor de verdeling"
+
+width = (bounds[1][1]-bounds[0][1]) / zones
+height = (bounds[1][0]-bounds[0][0]) / zones
+
+for y in range(zones):
+    for x in range(zones):
+
+#        print "Vlak "+str(zones*y+(x+1))
+
+        sub_bounds = (
+            (bounds[1][0]-((y+1)*height),bounds[0][1]+(x*width)),
+            (bounds[1][0]-(y*height),bounds[0][1]+((x+1)*width))
+            )
+        sub_sets = map_sets(sub_bounds, raster_size)
+
+        for cor in macro_correlations:
+            macro_correlations[cor]["sub"].append("X")
+
+        if not all(sub_sets.values()):
+            continue
+
+        sub_correlations = build_correlations(sub_sets)
+
+        for sub_cor in sub_correlations:
+            if macro_correlations.has_key(sub_cor):
+                cor = macro_correlations[sub_cor]
+                last_index = len(cor["sub"])-1
+                cor["sub"][last_index] = sub_correlations[sub_cor]["pearsons"]
 
 
+for cor in macro_correlations:
+    sub = [x for x in macro_correlations[cor]['sub'] if x != "X"]
+    dev = [(x-macro_correlations[cor]["pearsons"])**2 for x in sub]
+    if len(sub) < 1:
+        continue
+    avg_dev = math.sqrt((1.0/len(sub))*sum(dev))
+    macro_correlations[cor]["avg_deviation"]=avg_dev
+#    pprint(macro_correlations[cor])
 
-#
-#for cor in macro_correlations:
-#    cor["sub"] = []
-#
-##print "En nu voor de verdeling"
-#
-#width = (bounds[1][1]-bounds[0][1]) / zones
-#height = (bounds[1][0]-bounds[0][0]) / zones
-#
-#sub_correlations = []
-#
-#for y in range(zones):
-#    for x in range(zones):
-#
-##        print "Vlak "+str(zones*y+(x+1))
-#
-#        sub_bounds = (
-#            (bounds[1][0]-((y+1)*height),bounds[0][1]+(x*width)),
-#            (bounds[1][0]-(y*height),bounds[0][1]+((x+1)*width))
-#            )
-#        sub_sets = map_sets(sub_bounds, raster_size)
-#
-#        for cor in macro_correlations:
-#            cor["sub"].append("X")
-#
-#        if not all(sub_sets.values()):
-#            continue
-#
-#        sub_correlations = build_correlations(sub_sets)
-#
-#        for sub_cor in sub_correlations:
-#            filtered = [cor for cor in macro_correlations
-#                        if (cor["set_a"] == sub_cor["set_a"] and cor["set_b"] == sub_cor["set_b"])
-#                        or (cor["set_b"] == sub_cor["set_a"] and cor["set_b"] == sub_cor["set_a"])]
-#            for cor in filtered:
-#                last_index = len(cor["sub"])-1
-#                cor["sub"][last_index] = sub_cor["pearsons"]
-#
-#
-##for cor in macro_correlations:
-##    pprint(cor)
-#
+result = []
+
+for cor in macro_correlations:
+    if macro_correlations[cor]["pearsons"]==2.0:
+        continue
+    if fabs(macro_correlations[cor]["pearsons"])>threshold:
+        result.append(macro_correlations[cor])
+    elif macro_correlations[cor].has_key("avg_deviation"):
+        if macro_correlations[cor]["avg_deviation"]>threshold:
+            result.append(macro_correlations[cor])
+
+
 print "Content-type: application/json"
 print
 print json.dumps(macro_correlations)

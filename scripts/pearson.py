@@ -32,7 +32,7 @@ def pearson(x,y):
 
 
     if denominator == 0:
-        print "delen door nul mag niet"
+#        print "delen door nul mag niet"
         return 2
 
     return numerator/denominator
