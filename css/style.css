@@ -1,0 +1,80 @@
+body { background-color: #eeeeee;
+    margin: 0;
+    padding: 0;
+    font-family: "Helvetica Neue", Arial;
+    font-weight: lighter;
+    font-size: 13px; }
+
+label {
+    display: inline-block;
+    width: 125px;
+}
+
+
+.collection-selector { display: inline-block; padding: 0 20px 40px 0;}
+
+.date { display: inline-block;
+    width: 165px; }
+.time { display: inline-block;
+    width: 120px; }
+.date_option { display: inline-block;
+    width: 40px;}
+.last { padding-bottom: 20px;}
+#opmerking {
+    font-style:italic;
+    font-size: 15px;
+}
+
+#content {
+    margin: 5em auto;
+    padding: 3em 3em;
+    background-color: #ffffff;
+    -webkit-box-shadow: 0px 0px 15px 0px rgba(00, 00, 00, 1);
+    -moz-box-shadow: 0px 0px 15px 0px rgba(00, 00, 00, 1);
+    box-shadow: 0px 0px 15px 0px rgba(00, 00, 00, 1);
+    overflow: auto;
+}
+
+#content h1{
+    margin: 0 0 1em;
+}
+
+#mapArea {
+    position:relative;
+    float:left;
+    width:500px;
+    height:500px;
+    border:1px dashed black;
+    margin-right: 3em;
+    margin-bottom: 40px;
+}
+
+.attributes {
+    width: 110px;
+}
+
+#controllers-analyser, #upload {
+    float: left;
+    width: 800px;
+    padding: 20px;
+    background-color: #f5f5f5;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    margin-bottom: 40px;
+
+}
+.controller { height: 25px; }
+.controller .label, .controller .slider {
+    float: left;
+    width: 175px;
+}
+.controller .value {
+    float: left;
+    width: 100px;
+    font-weight: bold;
+}
+.ui-slider-horizontal,
+.ui-slider-handle.ui-state-default.ui-corner-all {
+    border-color: #888;
+}
