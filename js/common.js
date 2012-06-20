@@ -61,8 +61,12 @@ AnalyzeResults = {
      * @param data The data to be displayed
      */
     addGridTileListener : function(t, data) {
+        var infowindow = new google.maps.InfoWindow({
+            content: 'sample data',
+            position: t.bounds.getCenter()
+        });
         google.maps.event.addListener(t, 'click', function() {
-            alert(data);
+            infowindow.open(this.map);
         });
     },
 
