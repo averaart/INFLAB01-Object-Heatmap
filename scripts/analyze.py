@@ -1,5 +1,6 @@
 #!/usr/bin/python
 from pprint import pprint
+import math
 
 __author__ = 'averaart'
 
@@ -40,7 +41,7 @@ if fs.has_key('threshold'):
 # The two tuples indicate lower-left and upper-right corners of the area.
 #
 # bounds = ((51.91434265748467, 4.461112261746166), (51.92762956096251, 4.482655764553783))  # <---- 1km3 gebied
-# bounds = ((50.0, 4.0), (51.0, 5.0)) # <---- TEST
+#bounds = ((50.0, 3.0), (52.0, 5.0)) # <---- TEST
 bounds = ((51.807766, 4.286041), (51.967962, 4.700775)) # <---- Rotterdam
 if fs.has_key('bounds'):
     bounds = eval(urllib.url2pathname(fs["bounds"].value))
@@ -48,7 +49,7 @@ if fs.has_key('bounds'):
 # raster_size defines how many fields the raster has on ONE side.
 # A value of 20 would result in a raster of (20 * 20 =) 400 fields.
 # This means that the pearson's formula will be called with lists of 400 elements each.
-raster_size = 20
+raster_size = 3
 if fs.has_key('rasterSize'):
     raster_size = int(fs["rasterSize"].value)
 
@@ -58,6 +59,8 @@ zones = 3
 def map_sets(bounds, raster_size):
     # sets will store the results of any map/reduce queries
     sets = {}
+
+#    print "bounds: "+str(bounds)
 
     # determine the width and height of one raster field
     width = (bounds[1][1]-bounds[0][1]) / raster_size
@@ -130,7 +133,11 @@ def build_correlations(sets):
 
     for set in sets:
         for jx, attribute in enumerate(sets[set]):
-            if attribute["_id"] == "TOTAAL": continue
+            if attribute["_id"] == "TOTAAL":
+#                print set.ljust(20),
+#                print sum([x for x in attribute['value']['undefined'] if not math.isnan(x)])
+#                print attribute['value']['undefined']
+                continue
             for ix, value_x in enumerate(attribute["value"]):
                 for set_y in sets:
                     for jy, attribute_y in enumerate(sets[set_y]):
@@ -144,7 +151,7 @@ def build_correlations(sets):
                             set_total = [sum(pair) for pair in zip(set_total_a, set_total_b)]
                             set_att_a = [val for enum, val in enumerate(attribute["value"][value_x]) if set_total[enum-1]>0]
                             set_att_b = [val for enum, val in enumerate(attribute_y["value"][value_y]) if set_total[enum-1]>0]
-                            my_pearson = pearson(attribute["value"][value_x], attribute_y["value"][value_y])
+                            my_pearson = pearson(set_att_a, set_att_b)
                             correlations.append({"set_a":{"set":set,
                                                           "attribute":attribute["_id"],
                                                           "value":value_x},
@@ -155,12 +162,16 @@ def build_correlations(sets):
 
     return correlations
 
+
+#print "Het hele gebied"
 sets = map_sets(bounds, raster_size)
 macro_correlations = build_correlations(sets)
-#macro_correlations = [cor for cor in macro_correlations if fabs(cor["pearsons"])>threshold and cor["pearsons"]!=2.0]
+macro_correlations = [cor for cor in macro_correlations if fabs(cor["pearsons"])>threshold and cor["pearsons"]!=2.0]
 
 for cor in macro_correlations:
     cor["sub"] = []
+
+#print "En nu voor de verdeling"
 
 width = (bounds[1][1]-bounds[0][1]) / zones
 height = (bounds[1][0]-bounds[0][0]) / zones
@@ -170,7 +181,7 @@ sub_correlations = []
 for y in range(zones):
     for x in range(zones):
 
-        print "Vlak "+str(raster_size*y+(x+1))
+#        print "Vlak "+str(zones*y+(x+1))
 
         sub_bounds = (
             (bounds[1][0]-((y+1)*height),bounds[0][1]+(x*width)),
@@ -195,9 +206,9 @@ for y in range(zones):
                 cor["sub"][last_index] = sub_cor["pearsons"]
 
 
-for cor in macro_correlations:
-    pprint(cor)
+#for cor in macro_correlations:
+#    pprint(cor)
 
-#print "Content-type: application/json"
-#print
-#print json.dumps(macro_correlations)
+print "Content-type: application/json"
+print
+print json.dumps(macro_correlations)
