@@ -191,27 +191,29 @@ window.onload = function(){
                         var corr = eval (data);
 
                         $.each(data, function(i, item){
-                            result += "<tr><td>" +
-                                    "Set: <br>" +
-                                    "Attribuut: <br>" +
-                                    "Waarde: " +
-                                    "</td>" +
-                                    "<td>" +
-                                    item["set_a"]["set"]+"<br>" +
-                                    item["set_a"]["attribute"]+"<br>" +
-                                    item["set_a"]["value"] +
-                                    "</td>" +
-                                    "<td>" +
-                                    "Set: <br>" +
-                                    "Attribuut: <br>" +
-                                    "Waarde: " +
-                                    "</td>" +
-                                    "<td>" +
-                                    item["set_b"]["set"]+"<br>" +
-                                    item["set_b"]["attribute"]+"<br>" +
-                                    item["set_b"]["value"] +
-                                    "</td>" +
-                                    "<td>"+item["pearsons"]+"</td></tr>";
+                            if (Math.abs(item["pearsons"]) > $("#min-correlation-val").html() ){
+                                result += "<tr><td>" +
+                                        "Set: <br>" +
+                                        "Attribuut: <br>" +
+                                        "Waarde: " +
+                                        "</td>" +
+                                        "<td>" +
+                                        item["set_a"]["set"]+"<br>" +
+                                        item["set_a"]["attribute"]+"<br>" +
+                                        item["set_a"]["value"] +
+                                        "</td>" +
+                                        "<td>" +
+                                        "Set: <br>" +
+                                        "Attribuut: <br>" +
+                                        "Waarde: " +
+                                        "</td>" +
+                                        "<td>" +
+                                        item["set_b"]["set"]+"<br>" +
+                                        item["set_b"]["attribute"]+"<br>" +
+                                        item["set_b"]["value"] +
+                                        "</td>" +
+                                        "<td>"+item["pearsons"]+"</td></tr>";
+                            }
                         });
 
                         result += "</table>";

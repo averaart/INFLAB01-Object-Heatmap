@@ -54,7 +54,10 @@ if fs.has_key('rasterSize'):
     raster_size = int(fs["rasterSize"].value)
 
 zones = 3
-
+if fs.has_key('zones'):
+    zones = int(fs["zones"].value)
+elif fs.has_key('rasterSize'):
+    zones = int(fs["rasterSize"].value)
 
 def map_sets(bounds, raster_size):
     # sets will store the results of any map/reduce queries
