@@ -84,86 +84,79 @@ Grid = {
 };
 
 
-AnalyzeResults = {
 
-    correlations: new Array(),
+function countAvgDeviationViolation(correlations) {
+    if(correlations.length > 0) {
+        var zone_violation_count = new Array();
+        //initial value
+        for (var i = 0; i < correlations[0]["sub"].length; i++) {
+            zone_violation_count[i] = 0
+        }
 
-    countAvgDeviationViolation: function() {
-        console.log(this.correlations.length);
+        //count violations of avg_deviation for each zone
 
-        if(this.correlations.length > 0) {
-            var zone_violation_count = new Array();
-            //initial value
-            for (var i = 0; i < this.correlations[0].sub.length; i++) {
-                zone_violation_count[i] = 0
-            }
-
-            //count violations of avg_deviation for each zone
-
-            // each correlation
-            for (var j = 0; j < this.correlations.length; j++) {
-                var lowerThreshold = this.correlations[j].pearsons - this.correlations[j].avg_deviation;
-                var upperThreshold = this.correlations[j].pearsons + this.correlations[j].avg_deviation;
-                // each zone
-                for (var k = 0; k < this.correlations[j].sub.length; k++) {
-                    if(this.correlations[j].sub[k] != 'X' &&
-                        (   this.correlations[j].sub[k] < lowerThreshold ||
-                            this.correlations[j].sub[k] > upperThreshold))
-                    {
-                        zone_violation_count[k] += 1;
-                    }
+        // each correlation
+        for (var j = 0; j < correlations.length; j++) {
+            var lowerThreshold = correlations[j].pearsons - correlations[j].avg_deviation;
+            var upperThreshold = correlations[j].pearsons + correlations[j].avg_deviation;
+            // each zone
+            for (var k = 0; k < correlations[j].sub.length; k++) {
+                if(correlations[j].sub[k] != 'X' &&
+                    (   correlations[j].sub[k] < lowerThreshold ||
+                        correlations[j].sub[k] > upperThreshold))
+                {
+                    zone_violation_count[k] += 1;
                 }
             }
-            return zone_violation_count;
         }
-    },
-
-    fabricateCorrelation: function(item) {
-        var c = Correlation;
-        c.avg_deviation     = item["avg_deviation"];
-        c.pearsons          = item["pearsons"];
-
-        c.set_a.amountTotal = item["set_a"]["amount-total"];
-        c.set_a.amountValue = item["set_a"]["amount-value"];
-        c.set_a.attribute   = item["set_a"]["attribute"];
-        c.set_a.set         = item["set_a"]["set"];
-        c.set_a.value       = item["set_a"]["value"];
-
-        c.set_b.amountTotal = item["set_b"]["amount-total"];
-        c.set_b.amountValue = item["set_b"]["amount-value"];
-        c.set_b.attribute   = item["set_b"]["attribute"];
-        c.set_b.set         = item["set_b"]["set"];
-        c.set_b.value       = item["set_b"]["value"];
-
-        c.sub = item["sub"];
-//
-//        console.log(c.avg_deviation);
-//        console.log(c.pearsons);
-//        console.log("=====");
-
-        this.correlations.push(c);
+        return zone_violation_count;
     }
-};
+}
 
 
-Correlation = {
-    avg_deviation: 0,
-    pearsons: 0,
-    set_a: {
-        amountTotal: 0,
-        amountValue: 0,
-        attribute: 0,
-        set: '',
-        value: ''
-    },
-    set_b: {
-        amountTotal: 0,
-        amountValue: 0,
-        attribute: 0,
-        set: '',
-        value: ''
-    },
-    sub : new Array()
+//function fabricateCorrelation(item) {
+//    var c = {};
+//    c['avg_deviation     = item["avg_deviation"];
+//    c['pearsons          = item["pearsons"];
+//
+//    c['set_a = {};
+//    c['set_a.amountTotal = item["set_a"]["amount-total"];
+//    c['set_a.amountValue = item["set_a"]["amount-value"];
+//    c['set_a.attribute   = item["set_a"]["attribute"];
+//    c['set_a.set         = item["set_a"]["set"];
+//    c['set_a.value       = item["set_a"]["value"];
+//
+//    c['set_b = {};
+//    c['set_b.amountTotal = item["set_b"]["amount-total"];
+//    c.set_b.amountValue = item["set_b"]["amount-value"];
+//    c.set_b.attribute   = item["set_b"]["attribute"];
+//    c.set_b.set         = item["set_b"]["set"];
+//    c.set_b.value       = item["set_b"]["value"];
+//
+//    c.sub = item["sub"];
+//
+//    return c;
+//}
 
-
-};
+//
+//Correlation = {
+//    avg_deviation: 0,
+//    pearsons: 0,
+//    set_a: {
+//        amountTotal: 0,
+//        amountValue: 0,
+//        attribute: 0,
+//        set: '',
+//        value: ''
+//    },
+//    set_b: {
+//        amountTotal: 0,
+//        amountValue: 0,
+//        attribute: 0,
+//        set: '',
+//        value: ''
+//    },
+//    sub : new Array()
+//
+//
+//};

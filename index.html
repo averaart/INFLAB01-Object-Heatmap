@@ -74,7 +74,6 @@
 
 var map;
 var grid = Grid;
-var analyseResults = AnalyzeResults;
 
 window.onload = function(){
     $(function() {
@@ -207,9 +206,10 @@ window.onload = function(){
                         var corr = eval (data);
                         var zvc = null;
 
+//                        var correlations = new Array();
 
                         $.each(data, function(i, item){
-                            AnalyzeResults.fabricateCorrelation(item);
+//                            correlations = fabricateCorrelation(item);
                             if (Math.abs(item["pearsons"]) > $("#min-correlation-val").html() ){
 
 
@@ -236,12 +236,12 @@ window.onload = function(){
                                         "<td>"+item["pearsons"]+"</td></tr>";
                             }
                         });
-                        zvc = AnalyzeResults.countAvgDeviationViolation();
+                        zvc = countAvgDeviationViolation(data);
                         result += "</table>";
                         $("#associations-results").html( result );
                         grid.buildGrid();
                         for (var j = 0; j < zvc.length; j++){
-                            if(zvc[j] > 0){
+                            if(zvc[j] > 3){
                                 grid.tiles[j].fillOpacity = 0.5;
                             }
                             console.log(j + ": " + zvc[j]);
