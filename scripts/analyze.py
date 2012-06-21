@@ -29,7 +29,7 @@ db = connection.opendata
 request = {"CivieleKunstwerken": ["TYPE", "MATERIAAL"],
            "speeltoestellen": ["TYPE", "MATERIAAL"]}
 if fs.has_key('sets'):
-    request = eval(urllib.url2pathname(fs['sets'].value))
+    request = eval(fs['sets'].value)
 
 
 # threshold indicates the lowest absolute correlation figure to report
