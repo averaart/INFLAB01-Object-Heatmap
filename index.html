@@ -11,9 +11,14 @@
     <div id="controllers-analyser">
         <h2>Analyse</h2>
         <div class="controller">
-            <div class="label">Rastergrootte:</div>
+            <div class="label">Pearsons nauwkeurigheid:</div>
             <div id="raster-size-val" class="value">10</div>
             <div class="slider" id="raster-size"></div>
+        </div>
+        <div class="controller">
+            <div class="label">Zonegrootte:</div>
+            <div id="zones-val" class="value">3</div>
+            <div class="slider" id="zones"></div>
         </div>
         <div class="controller">
             <div class="label">Minimum correlatie:</div>
@@ -75,13 +80,11 @@ window.onload = function(){
     $(function() {
         $( "#raster-size" ).slider({
             value:10,
-            min: 10,
+            min: 3,
             max: 50,
             step: 1,
             slide: function(event, ui){
                 $( "#raster-size-val" ).html( ui.value );
-                grid.columns = ui.value;
-                grid.rows = ui.value;
             }
         });
         $( "#min-correlation" ).slider({
@@ -91,6 +94,17 @@ window.onload = function(){
             step: 0.1,
             slide: function(event, ui){
                 $( "#min-correlation-val" ).html( ui.value );
+            }
+        });
+        $( "#zones" ).slider({
+            value:3,
+            min: 3,
+            max: 50,
+            step: 1,
+            slide: function(event, ui){
+                $( "#zones-val" ).html( ui.value );
+                grid.columns = ui.value;
+                grid.rows = ui.value;
             }
         });
     });
@@ -180,6 +194,7 @@ window.onload = function(){
             setCall += "}";
             url += "&sets=" + setCall;
 
+            url += "&zones=" + $("#zones-val").html();
             // Generate rasterSize option
             url += "&rasterSize=" + $("#raster-size-val").html();
             // Generate threshold option
@@ -190,10 +205,14 @@ window.onload = function(){
                     function( data ) {
                         var result = "<table cellspacing='15px'><thead><td colspan='2'>Serie 1</td><td colspan='2'>Serie 2</td><td>Correlatie</td></thead>";
                         var corr = eval (data);
+                        var zvc = null;
+
 
                         $.each(data, function(i, item){
                             AnalyzeResults.fabricateCorrelation(item);
                             if (Math.abs(item["pearsons"]) > $("#min-correlation-val").html() ){
+
+
                                 result += "<tr><td>" +
                                         "Set: <br>" +
                                         "Attribuut: <br>" +
@@ -217,15 +236,20 @@ window.onload = function(){
                                         "<td>"+item["pearsons"]+"</td></tr>";
                             }
                         });
-
+                        zvc = AnalyzeResults.countAvgDeviationViolation();
                         result += "</table>";
                         $("#associations-results").html( result );
-
+                        grid.buildGrid();
+                        for (var j = 0; j < zvc.length; j++){
+                            if(zvc[j] > 0){
+                                grid.tiles[j].fillOpacity = 0.5;
+                            }
+                            console.log(j + ": " + zvc[j]);
+                        }
                     });
         } else {
             $("#associations-results").html("Geen geldige selectie van data set(s) en attributen.");
         }
-        grid.buildGrid();
     });
 
     $("#reset-analyzer").click(function() {

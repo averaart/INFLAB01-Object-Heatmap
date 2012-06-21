@@ -9,8 +9,8 @@ Grid = {
 
     tiles : new Array(), // stores all the tiles of the tiles
     map : null,         // holds the map
-    columns: 10,        // number of colums of tiles
-    rows: 10,           // number of rows of tiles
+    columns: 3,        // number of colums of tiles
+    rows: 3,           // number of rows of tiles
 
     /**
      *
@@ -89,22 +89,28 @@ AnalyzeResults = {
     correlations: new Array(),
 
     countAvgDeviationViolation: function() {
+        console.log(this.correlations.length);
+
         if(this.correlations.length > 0) {
             var zone_violation_count = new Array();
-
             //initial value
             for (var i = 0; i < this.correlations[0].sub.length; i++) {
                 zone_violation_count[i] = 0
             }
 
             //count violations of avg_deviation for each zone
+
+            // each correlation
             for (var j = 0; j < this.correlations.length; j++) {
-                var threshold = this.correlations[j].pearsons - this.correlations[j].avg_deviation;
+                var lowerThreshold = this.correlations[j].pearsons - this.correlations[j].avg_deviation;
+                var upperThreshold = this.correlations[j].pearsons + this.correlations[j].avg_deviation;
+                // each zone
                 for (var k = 0; k < this.correlations[j].sub.length; k++) {
                     if(this.correlations[j].sub[k] != 'X' &&
-                        this.correlations[j].sub[k] < threshold)
+                        (   this.correlations[j].sub[k] < lowerThreshold ||
+                            this.correlations[j].sub[k] > upperThreshold))
                     {
-                        zone_violation_count[k]++;
+                        zone_violation_count[k] += 1;
                     }
                 }
             }
@@ -129,16 +135,11 @@ AnalyzeResults = {
         c.set_b.set         = item["set_b"]["set"];
         c.set_b.value       = item["set_b"]["value"];
 
-        for (var i = 0; i < item["sub"].length; i++){
-            c.sub[i] = item["sub"][i];
-        }
-
+        c.sub = item["sub"];
+//
 //        console.log(c.avg_deviation);
 //        console.log(c.pearsons);
-//        console.log(c.set_a.amountTotal);
-//        console.log(c.set_b.amountTotal);
-//        console.log(c.sub[2]);
-//        console.log('======');
+//        console.log("=====");
 
         this.correlations.push(c);
     }
