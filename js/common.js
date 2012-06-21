@@ -101,7 +101,9 @@ AnalyzeResults = {
             for (var j = 0; j < this.correlations.length; j++) {
                 var threshold = this.correlations[j].pearsons - this.correlations[j].avg_deviation;
                 for (var k = 0; k < this.correlations[j].sub.length; k++) {
-                    if(this.correlations[j].sub[k] < threshold){
+                    if(this.correlations[j].sub[k] != 'X' &&
+                        this.correlations[j].sub[k] < threshold)
+                    {
                         zone_violation_count[k]++;
                     }
                 }
@@ -131,12 +133,12 @@ AnalyzeResults = {
             c.sub[i] = item["sub"][i];
         }
 
-        console.log(c.avg_deviation);
-        console.log(c.pearsons);
-        console.log(c.set_a.amountTotal);
-        console.log(c.set_b.amountTotal);
-        console.log(c.sub[2]);
-        console.log('======');
+//        console.log(c.avg_deviation);
+//        console.log(c.pearsons);
+//        console.log(c.set_a.amountTotal);
+//        console.log(c.set_b.amountTotal);
+//        console.log(c.sub[2]);
+//        console.log('======');
 
         this.correlations.push(c);
     }
