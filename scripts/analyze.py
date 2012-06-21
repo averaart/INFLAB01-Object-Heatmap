@@ -263,11 +263,12 @@ result = []
 for cor in macro_correlations:
     if macro_correlations[cor]["pearsons"]==2.0:
         continue
-    if fabs(macro_correlations[cor]["pearsons"])>threshold:
-        result.append(macro_correlations[cor])
-    elif macro_correlations[cor].has_key("avg_deviation"):
-        if macro_correlations[cor]["avg_deviation"]>threshold:
-            result.append(macro_correlations[cor])
+    result.append(macro_correlations[cor])
+#    if fabs(macro_correlations[cor]["pearsons"])>threshold:
+#        result.append(macro_correlations[cor])
+#    elif macro_correlations[cor].has_key("avg_deviation"):
+#        if macro_correlations[cor]["avg_deviation"]>threshold:
+#            result.append(macro_correlations[cor])
 
 
 print "Content-type: application/json"
