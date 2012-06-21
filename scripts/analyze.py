@@ -40,16 +40,16 @@ if fs.has_key('threshold'):
 # bounds defines the area that's being examined.
 # The two tuples indicate lower-left and upper-right corners of the area.
 #
-#bounds = ((51.91434265748467, 4.461112261746166), (51.92762956096251, 4.482655764553783))  # <---- 1km3 gebied
+bounds = ((51.91434265748467, 4.461112261746166), (51.92762956096251, 4.482655764553783))  # <---- 1km3 gebied
 #bounds = ((50.0, 3.0), (52.0, 5.0)) # <---- TEST
-bounds = ((51.807766, 4.286041), (51.967962, 4.700775)) # <---- Rotterdam
+#bounds = ((51.807766, 4.286041), (51.967962, 4.700775)) # <---- Rotterdam
 if fs.has_key('bounds'):
     bounds = eval(urllib.url2pathname(fs["bounds"].value))
 
 # raster_size defines how many fields the raster has on ONE side.
 # A value of 20 would result in a raster of (20 * 20 =) 400 fields.
 # This means that the pearson's formula will be called with lists of 400 elements each.
-raster_size = 30
+raster_size = 3
 if fs.has_key('rasterSize'):
     raster_size = int(fs["rasterSize"].value)
 
@@ -271,4 +271,4 @@ for cor in macro_correlations:
 
 print "Content-type: application/json"
 print
-print json.dumps(macro_correlations)
+print json.dumps(result)
