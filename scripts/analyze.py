@@ -49,11 +49,11 @@ if fs.has_key('bounds'):
 # raster_size defines how many fields the raster has on ONE side.
 # A value of 20 would result in a raster of (20 * 20 =) 400 fields.
 # This means that the pearson's formula will be called with lists of 400 elements each.
-raster_size = 3
+raster_size = 10
 if fs.has_key('rasterSize'):
     raster_size = int(fs["rasterSize"].value)
 
-zones = 3
+zones = 10
 if fs.has_key('zones'):
     zones = int(fs["zones"].value)
 elif fs.has_key('rasterSize'):
@@ -242,6 +242,7 @@ for y in range(zones):
         sub_correlations = build_correlations(sub_sets)
 
         for sub_cor in sub_correlations:
+            if sub_correlations[sub_cor]["pearsons"] == 2: continue
             if macro_correlations.has_key(sub_cor):
                 cor = macro_correlations[sub_cor]
                 last_index = len(cor["sub"])-1
@@ -262,11 +263,12 @@ result = []
 for cor in macro_correlations:
     if macro_correlations[cor]["pearsons"]==2.0:
         continue
-    if fabs(macro_correlations[cor]["pearsons"])>threshold:
-        result.append(macro_correlations[cor])
-    elif macro_correlations[cor].has_key("avg_deviation"):
-        if macro_correlations[cor]["avg_deviation"]>threshold:
-            result.append(macro_correlations[cor])
+    result.append(macro_correlations[cor])
+#    if fabs(macro_correlations[cor]["pearsons"])>threshold:
+#        result.append(macro_correlations[cor])
+#    elif macro_correlations[cor].has_key("avg_deviation"):
+#        if macro_correlations[cor]["avg_deviation"]>threshold:
+#            result.append(macro_correlations[cor])
 
 
 print "Content-type: application/json"
