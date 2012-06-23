@@ -4,14 +4,16 @@ import math
 
 __author__ = 'averaart'
 
-from logging import *
-from pymongo import Connection
-from bson.code import Code
-from pearson import pearson
-from math import fabs
-import simplejson, json
 import cgi
+from logging import *
+import json
+from math import fabs
 import urllib
+
+from bson.code import Code
+from pymongo import Connection
+
+from pearson import pearson
 
 fs = cgi.FieldStorage()
 
@@ -184,14 +186,14 @@ def build_correlations(sets):
                     for att_j, attribute_y in enumerate(sets[set_y]):
                         if attribute_y == "TOTAAL":
                             continue
-                        for val_j, value_y in enumerate(sets[set_y][attribute_y]):
+                        for val_j, value_y in enumerate(sets[set_y][attribute_y].keys()[:val_i+1]):
                             if set_x == set_y and attribute_x == attribute_y and value_x == value_y:
                                 continue
                             count_y = [val for enum, val in enumerate(sets[set_y][attribute_y][value_y]) if set_total[enum]>0]
                             if len(count_y)<=1:
                                 continue
                             my_pearson = pearson(count_x, count_y)
-                            key = str(set_x)+"-"+str(attribute_x)+"-"+str(value_x)+"-"+str(set_y)+"-"+str(attribute_y)+"-"+str(value_y)
+                            key = str(set_x)+"-"+str(attribute_x)+"-"+str(value_x)+"_"+str(set_y)+"-"+str(attribute_y)+"-"+str(value_y)
                             correlations[key] = ({"set_a":{"set":set_x,
                                                           "attribute":attribute_x,
                                                           "value":value_x,
@@ -247,6 +249,12 @@ for y in range(zones):
                 cor = macro_correlations[sub_cor]
                 last_index = len(cor["sub"])-1
                 cor["sub"][last_index] = sub_correlations[sub_cor]["pearsons"]
+            else:
+                reverse = "_".join(reversed(sub_cor.split('_')))
+                if macro_correlations.has_key(reverse):
+                    cor = macro_correlations[reverse]
+                    last_index = len(cor["sub"])-1
+                    cor["sub"][last_index] = sub_correlations[sub_cor]["pearsons"]
 
 
 for cor in macro_correlations:
