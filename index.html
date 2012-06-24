@@ -8,6 +8,7 @@
 <body>
 <div id="content" class="clearfix">
 	<div id="mapArea"></div>
+    <div id="debug">...</div>
     <div id="controllers-analyser">
         <h2>Analyse</h2>
         <div class="controller">
@@ -17,7 +18,7 @@
         </div>
         <div class="controller">
             <div class="label">Zonegrootte:</div>
-            <div id="zones-val" class="value">3</div>
+            <div id="zones-val" class="value">7</div>
             <div class="slider" id="zones"></div>
         </div>
         <div class="controller">
@@ -74,6 +75,8 @@
 
 var map;
 var grid = Grid;
+grid.columns = 7;
+grid.rows = 7;
 
 var data;
 
@@ -103,8 +106,8 @@ window.onload = function(){
             }
         });
         $( "#zones" ).slider({
-            value:3,
-            min: 3,
+            value:7,
+            min: 7,
             max: 50,
             step: 1,
             slide: function(event, ui){
@@ -210,12 +213,12 @@ window.onload = function(){
             $.ajax({ url: url }).done(
                     function( response ) {
                         data = response;
-                        var result = "<table cellspacing='15px'><thead><td>&nbsp;</td><td>Serie 1</td><td>Serie 2</td><td>Correlatie</td></thead>";
+                        var result = "<table cellspacing='15px'><thead><td>&nbsp;</td><td>Serie 1</td><td>Serie 2</td><td>Correlatie</td><td>Actie</td></thead>";
                         var zvc = null;
 
 //                        var correlations = new Array();
 
-                        $.each(data, function(i, item){
+                        $.each(data, function(key, item){
 //                            correlations = fabricateCorrelation(item);
                             if (Math.abs(item["pearsons"]) > $("#min-correlation-val").html() ){
 
@@ -241,7 +244,8 @@ window.onload = function(){
                                         item["set_b"]["amount-value"] +"<br>" +
                                         item["set_b"]["amount-total"] +
                                         "</td>" +
-                                        "<td>"+item["pearsons"]+"</td></tr>";
+                                        "<td>"+item["pearsons"]+"</td>" +
+                                        "<td><input type='button' id='start-detail' value='Details' onclick='showDetails(\""+key+"\");'></td></tr>";
                             }
                         });
                         zvc = countAvgDeviationViolation(data);
@@ -306,12 +310,68 @@ window.onload = function(){
 // --------------------- for testing purposes only !!! ------------------------------------------------
                 $('#collections1 :nth-child(5)').attr('selected', 'selected');
                 $('#collections1 :nth-child(5)').change();
+
+                $( "#zones" ).slider.slide();
 // ----------------------------- end testing ----------------------------------------------------------
 
             });
 
+
+
 };
 
+
+function showDetails(combKey){
+    var pearson = data[combKey]["pearsons"];
+    var sub = data[combKey]["sub"];
+    var dev = data[combKey]["avg_deviation"];
+    var diff = [];
+    for (var field in sub){
+        if (sub[field] == "X"){
+            diff.push("X");
+        } else {
+            diff.push(sub[field]-pearson);
+        }
+    }
+    for (var i in diff){
+        var my_rectOpt;
+        // if diff is either X, or within standard deviation
+        if (diff[i] == "X") {
+            my_rectOpt = {
+                fillColor: "#000000",
+                fillOpacity: 0.2
+            };
+        } else {
+            if (diff[i] > dev){
+                my_rectOpt = {
+                    fillColor: "#00FF00",
+                    fillOpacity: 0.5
+                };
+            } else if (diff[i] < -dev){
+                my_rectOpt = {
+                    fillColor: "#FF0000",
+                    fillOpacity: 0.5
+                };
+            } else {
+                my_rectOpt = {
+                    fillOpacity: 0.0
+                };
+            }
+        }
+        var result = "<p>"
+        result += "Algemene correlatie: "+round(pearson, 3)+"<br>";
+        result += "Gemiddelde afwijking: +/-"+round(dev, 3)+"<br>";
+        result += "Locale correlatie: "+round(sub[i], 3)+"<br>";
+        result += "</p>";
+        grid.addGridTileListener(grid.tiles[i], result);
+        grid.tiles[i].setOptions(my_rectOpt);
+    }
+}
+
+function round(num, dec) {
+    var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec);
+    return result;
+}
 </script>
 </body>
 </html>

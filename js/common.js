@@ -70,9 +70,9 @@ Grid = {
      * @param t Rectangle Object
      * @param data The data to be displayed
      */
-    addGridTileListener : function(t, data) {
+    addGridTileListener : function(t, tiledata) {
         var infowindow = new google.maps.InfoWindow({
-            content: 'sample',
+            content: String(tiledata),
             position: t.bounds.getCenter()
         });
         google.maps.event.addListener(t, 'click', function() {
@@ -121,6 +121,10 @@ function countAvgDeviationViolation(correlations) {
         return zone_violation_count;
     }
 }
+
+
+
+
 
 
 //function fabricateCorrelation(item) {
