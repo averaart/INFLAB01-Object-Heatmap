@@ -75,6 +75,8 @@
 var map;
 var grid = Grid;
 
+var data;
+
 window.onload = function(){
     $(function() {
         $( "#raster-size" ).slider({
@@ -201,9 +203,9 @@ window.onload = function(){
 
             $("#associations-results").html( '<img src="img/loading.gif" alt="loading">' );
             $.ajax({ url: url }).done(
-                    function( data ) {
-                        var result = "<table cellspacing='15px'><thead><td colspan='2'>Serie 1</td><td colspan='2'>Serie 2</td><td>Correlatie</td></thead>";
-                        var corr = eval (data);
+                    function( response ) {
+                        data = response;
+                        var result = "<table cellspacing='15px'><thead><td>&nbsp;</td><td>Serie 1</td><td>Serie 2</td><td>Correlatie</td></thead>";
                         var zvc = null;
 
 //                        var correlations = new Array();
@@ -226,13 +228,6 @@ window.onload = function(){
                                         item["set_a"]["value"] +"<br>" +
                                         item["set_a"]["amount-value"] +"<br>" +
                                         item["set_a"]["amount-total"] +
-                                        "</td>" +
-                                        "<td>" +
-                                        "Set: <br>" +
-                                        "Attribuut: <br>" +
-                                        "Waarde: <br>" +
-                                        "Met deze waarde: <br>" +
-                                        "Totaal: " +
                                         "</td>" +
                                         "<td>" +
                                         item["set_b"]["set"]+"<br>" +

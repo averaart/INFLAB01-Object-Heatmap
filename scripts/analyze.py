@@ -193,6 +193,8 @@ def build_correlations(sets):
                             if len(count_y)<=1:
                                 continue
                             my_pearson = pearson(count_x, count_y)
+                            if my_pearson == 2:
+                                continue
                             key = str(set_x)+"-"+str(attribute_x)+"-"+str(value_x)+"_"+str(set_y)+"-"+str(attribute_y)+"-"+str(value_y)
                             correlations[key] = ({"set_a":{"set":set_x,
                                                           "attribute":attribute_x,
@@ -264,21 +266,7 @@ for cor in macro_correlations:
         continue
     avg_dev = math.sqrt((1.0/len(sub))*sum(dev))
     macro_correlations[cor]["avg_deviation"]=avg_dev
-#    pprint(macro_correlations[cor])
-
-result = []
-
-for cor in macro_correlations:
-    if macro_correlations[cor]["pearsons"]==2.0:
-        continue
-    result.append(macro_correlations[cor])
-#    if fabs(macro_correlations[cor]["pearsons"])>threshold:
-#        result.append(macro_correlations[cor])
-#    elif macro_correlations[cor].has_key("avg_deviation"):
-#        if macro_correlations[cor]["avg_deviation"]>threshold:
-#            result.append(macro_correlations[cor])
-
 
 print "Content-type: application/json"
 print
-print json.dumps(result)
+print json.dumps(macro_correlations)

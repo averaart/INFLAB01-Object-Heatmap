@@ -10,7 +10,10 @@ label {
     width: 125px;
 }
 
-
+td {
+    width:auto;
+    min-width:10px;
+}
 .collection-selector { display: inline-block; padding: 0 20px 40px 0;}
 
 .date { display: inline-block;
