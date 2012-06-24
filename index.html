@@ -77,6 +77,11 @@ var grid = Grid;
 
 var data;
 
+// --------------------- for testing purposes only !!! ------------------------------------------------
+var firstload = true;
+// ----------------------------- end testing ----------------------------------------------------------
+
+
 window.onload = function(){
     $(function() {
         $( "#raster-size" ).slider({
@@ -284,13 +289,25 @@ window.onload = function(){
                                         }
                                     }
 
+// --------------------- for testing purposes only !!! ------------------------------------------------
+
+                                    if (firstload){
+                                        $('#attributes1-1 :nth-child(15)').attr('selected', 'selected');
+                                        $('#attributes1-2 :nth-child(27)').attr('selected', 'selected');
+                                        firstload = false;
+                                    }
+// ----------------------------- end testing ----------------------------------------------------------
                                 }
                         );
 	                } else {
 	                	clearSelect(this);
 	                }
 	            });
-//                $('#collections1 :nth-child(2)').attr('selected', 'selected')
+// --------------------- for testing purposes only !!! ------------------------------------------------
+                $('#collections1 :nth-child(5)').attr('selected', 'selected');
+                $('#collections1 :nth-child(5)').change();
+// ----------------------------- end testing ----------------------------------------------------------
+
             });
 
 };

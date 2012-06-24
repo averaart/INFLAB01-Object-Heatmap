@@ -5,6 +5,15 @@
  * Time: 16:29
  */
 
+// Little helper function
+Object.size = function(obj) {
+    var size = 0, key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) size++;
+    }
+    return size;
+};
+
 Grid = {
 
     tiles : new Array(), // stores all the tiles of the tiles
@@ -86,17 +95,17 @@ Grid = {
 
 
 function countAvgDeviationViolation(correlations) {
-    if(correlations.length > 0) {
+    if(Object.size(correlations) > 0) {
         var zone_violation_count = new Array();
         //initial value
-        for (var i = 0; i < correlations[0]["sub"].length; i++) {
-            zone_violation_count[i] = 0
+        for (var i = 0; i < Math.pow($("#zones-val").html(),2); i++) {
+            zone_violation_count[i] = 0;
         }
 
         //count violations of avg_deviation for each zone
 
         // each correlation
-        for (var j = 0; j < correlations.length; j++) {
+        for (var j in correlations){
             var lowerThreshold = correlations[j].pearsons - correlations[j].avg_deviation;
             var upperThreshold = correlations[j].pearsons + correlations[j].avg_deviation;
             // each zone
