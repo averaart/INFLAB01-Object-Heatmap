@@ -6,67 +6,77 @@
 </head>
 
 <body>
-<div id="content" class="clearfix">
-	<div id="mapArea"></div>
-    <div id="debug">...</div>
-    <div id="controllers-analyser">
-        <h2>Analyse</h2>
-        <div class="controller">
-            <div class="label">Pearsons nauwkeurigheid:</div>
-            <div id="raster-size-val" class="value">10</div>
-            <div class="slider" id="raster-size"></div>
+<div id="wrapper">
+    <div id="content" class="clearfix">
+        <div id="left">
+            <div id="mapArea"></div>
         </div>
-        <div class="controller">
-            <div class="label">Zonegrootte:</div>
-            <div id="zones-val" class="value">7</div>
-            <div class="slider" id="zones"></div>
-        </div>
-        <div class="controller">
-            <div class="label">Minimum correlatie:</div>
-            <div id="min-correlation-val" class="value">0.5</div>
-            <div class="slider" id="min-correlation"></div>
-        </div>
-        <div class="collection-selector">
-            Datasets en attributen:
-            <div>
-                <select id="collections1" class="collections"><option value="">-</option></select>
-                <select id="attributes1-1" class="attributes collections1"><option value="">-</option></select>
-                <select id="attributes1-2" class="attributes collections1"><option value="">-</option></select>
-                <select id="attributes1-3" class="attributes collections1"><option value="">-</option></select>
-                <select id="attributes1-4" class="attributes collections1"><option value="">-</option></select>
-                <select id="attributes1-5" class="attributes collections1"><option value="">-</option></select>
+        <div id="right">
+            <div id="debug"></div>
+            <div id="controllers-analyser">
+                <h2>Analyse</h2>
+                <div class="controller">
+                    <div class="label">Pearsons nauwkeurigheid:</div>
+                    <div id="raster-size-val" class="value">10</div>
+                    <div class="slider" id="raster-size"></div>
+                </div>
+                <div class="controller">
+                    <div class="label">Zonegrootte:</div>
+                    <div id="zones-val" class="value">7</div>
+                    <div class="slider" id="zones"></div>
+                </div>
+                <div class="controller">
+                    <div class="label">Correlatie bereik:</div>
+                    <div id="min-correlation-val" class="value-left">0.5</div>
+                    <div class="dash">-</div>
+                    <div id="max-correlation-val" class="value-right">0.9</div>
+                    <div class="slider" id="correlation-range"></div>
+                </div>
+                <div class="collection-selector">
+                    Datasets en attributen:
+                    <div>
+                        <select id="collections1" class="collections"><option value="">-</option></select>
+                        <select id="attributes1-1" class="attributes collections1"><option value="">-</option></select>
+                        <select id="attributes1-2" class="attributes collections1"><option value="">-</option></select>
+                        <select id="attributes1-3" class="attributes collections1"><option value="">-</option></select>
+                        <select id="attributes1-4" class="attributes collections1"><option value="">-</option></select>
+                        <select id="attributes1-5" class="attributes collections1"><option value="">-</option></select>
+                    </div>
+                    <div>
+                        <select id="collections2" class="collections"><option value="">-</option></select>
+                        <select id="attributes2-1" class="attributes collections2"><option value="">-</option></select>
+                        <select id="attributes2-2" class="attributes collections2"><option value="">-</option></select>
+                        <select id="attributes2-3" class="attributes collections2"><option value="">-</option></select>
+                        <select id="attributes2-4" class="attributes collections2"><option value="">-</option></select>
+                        <select id="attributes2-5" class="attributes collections2"><option value="">-</option></select>
+                    </div>
+                    <div>
+                        <select id="collections3" class="collections"><option value="">-</option></select>
+                        <select id="attributes3-1" class="attributes collections3"><option value="">-</option></select>
+                        <select id="attributes3-2" class="attributes collections3"><option value="">-</option></select>
+                        <select id="attributes3-3" class="attributes collections3"><option value="">-</option></select>
+                        <select id="attributes3-4" class="attributes collections3"><option value="">-</option></select>
+                        <select id="attributes3-5" class="attributes collections3"><option value="">-</option></select>
+                    </div>
+                </div>
+                <div>
+                <input type="button" id="start-analyzer" value="Analyseer">
+                <input type="button" id="reset-analyzer" value="Reset map">
+                </div>
+                <div id="associations-results"></div>
             </div>
-            <div>
-                <select id="collections2" class="collections"><option value="">-</option></select>
-                <select id="attributes2-1" class="attributes collections2"><option value="">-</option></select>
-                <select id="attributes2-2" class="attributes collections2"><option value="">-</option></select>
-                <select id="attributes2-3" class="attributes collections2"><option value="">-</option></select>
-                <select id="attributes2-4" class="attributes collections2"><option value="">-</option></select>
-                <select id="attributes2-5" class="attributes collections2"><option value="">-</option></select>
-            </div>
-            <div>
-                <select id="collections3" class="collections"><option value="">-</option></select>
-                <select id="attributes3-1" class="attributes collections3"><option value="">-</option></select>
-                <select id="attributes3-2" class="attributes collections3"><option value="">-</option></select>
-                <select id="attributes3-3" class="attributes collections3"><option value="">-</option></select>
-                <select id="attributes3-4" class="attributes collections3"><option value="">-</option></select>
-                <select id="attributes3-5" class="attributes collections3"><option value="">-</option></select>
+            <div id="upload" class="clearfix">
+                <h2>Nieuwe set uploaden</h2>
+                <form enctype="multipart/form-data" action="scripts/upload-file.py" method="post">
+                    <div><label>Collectie naam:</label><input type="text" name="collection"></div>
+                    <div><label>Shp bestand:</label> <input type="file" name="shp"></div>
+                    <div><label>Dbf bestand:</label> <input type="file" name="dbf"></div>
+                    <div style="padding-top: 40px;"><input type=submit value="Uploaden"></div>
+                </form>
             </div>
         </div>
-        <input type="button" id="start-analyzer" value="Analyseer">
-        <input type="button" id="reset-analyzer" value="Reset map">
-        <div id="associations-results"></div>
-    </div>
-    <div id="upload" class="clearfix">
-        <h2>Nieuwe set uploaden</h2>
-        <form enctype="multipart/form-data" action="scripts/upload-file.py" method="post">
-            <div><label>Collectie naam:</label><input type="text" name="collection"></div>
-            <div><label>Shp bestand:</label> <input type="file" name="shp"></div>
-            <div><label>Dbf bestand:</label> <input type="file" name="dbf"></div>
-            <div style="padding-top: 40px;"><input type=submit value="Uploaden"></div>
-        </form>
-    </div>
-</div><!-- content -->
+    </div><!-- content -->
+</div>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
 <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
@@ -96,18 +106,20 @@ window.onload = function(){
                 $( "#raster-size-val" ).html( ui.value );
             }
         });
-        $( "#min-correlation" ).slider({
-            value:0.5,
-            min: 0,
+        $( "#correlation-range" ).slider({
+            range: true,
+            values: [ 0.5, 0.9 ],
+            min: 0.0,
             max: 1.0,
             step: 0.1,
             slide: function(event, ui){
-                $( "#min-correlation-val" ).html( ui.value );
+                $( "#min-correlation-val" ).html( ui.values[0]);
+                $( "#max-correlation-val" ).html( ui.values[1]);
             }
         });
         $( "#zones" ).slider({
             value:7,
-            min: 7,
+            min: 3,
             max: 50,
             step: 1,
             slide: function(event, ui){
@@ -135,6 +147,7 @@ window.onload = function(){
 	  disableDoubleClickZoom: false
 	};
 	map = new google.maps.Map(document.getElementById("mapArea"), myOptions);
+//    $("#mapArea").css('position', 'fixed');
     grid.map = map;
 
     var clearSelect = function(selectElement){
