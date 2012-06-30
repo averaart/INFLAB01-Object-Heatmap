@@ -79,6 +79,7 @@
 </div>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+<script src="//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.1/jquery.dataTables.min.js"></script>
 <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
 <script src="js/common.js"></script>
 <script type="text/javascript">
@@ -88,6 +89,8 @@ var grid = Grid;
 grid.columns = 7;
 grid.rows = 7;
 
+var corrMin = 0.5;
+var corrMax = 0.9;
 var data;
 
 // --------------------- for testing purposes only !!! ------------------------------------------------
@@ -129,6 +132,7 @@ window.onload = function(){
             }
         });
     });
+//    alert($("#correlation-range").slider("values"));
     var my_resolution = 100;
 	var my_radius = 10;
 	var my_opacity = 70;
@@ -226,51 +230,78 @@ window.onload = function(){
             $.ajax({ url: url }).done(
                     function( response ) {
                         data = response;
-                        var result = "<table cellspacing='15px'><thead><td>&nbsp;</td><td>Serie 1</td><td>Serie 2</td><td>Correlatie</td><td>Actie</td></thead>";
+                        var result = "<table id=\"correlation_results_table\" cellspacing='15px'><thead><th>#</th><th>Serie 1</th><th>Serie 2</th><th>Correlatie</th><th>Actie</th></thead><tbody>";
                         var zvc = null;
 
-//                        var correlations = new Array();
-
                         $.each(data, function(key, item){
-//                            correlations = fabricateCorrelation(item);
-                            if (Math.abs(item["pearsons"]) > $("#min-correlation-val").html() ){
-
-
-                                result += "<tr><td>" +
-                                        "Set: <br>" +
-                                        "Attribuut: <br>" +
-                                        "Waarde: <br>" +
-                                        "Met deze waarde: <br>" +
-                                        "Totaal: " +
-                                        "</td>" +
-                                        "<td>" +
-                                        item["set_a"]["set"]+"<br>" +
-                                        item["set_a"]["attribute"]+"<br>" +
-                                        item["set_a"]["value"] +"<br>" +
-                                        item["set_a"]["amount-value"] +"<br>" +
-                                        item["set_a"]["amount-total"] +
-                                        "</td>" +
-                                        "<td>" +
-                                        item["set_b"]["set"]+"<br>" +
-                                        item["set_b"]["attribute"]+"<br>" +
-                                        item["set_b"]["value"] +"<br>" +
-                                        item["set_b"]["amount-value"] +"<br>" +
-                                        item["set_b"]["amount-total"] +
-                                        "</td>" +
-                                        "<td>"+item["pearsons"]+"</td>" +
-                                        "<td><input type='button' id='start-detail' value='Details' onclick='showDetails(\""+key+"\");'></td></tr>";
-                            }
+                            var rgb = hsvToRgb(((item["pearsons"]+1.0)*60), 100, 100);
+                            result += "<tr><td>" +
+                                    "Set: <br>" +
+                                    "Attribuut: <br>" +
+                                    "Waarde: <br>" +
+                                    "Met deze waarde: <br>" +
+                                    "Totaal: " +
+                                    "</td>" +
+                                    "<td>" +
+                                    item["set_a"]["set"]+"<br>" +
+                                    item["set_a"]["attribute"]+"<br>" +
+                                    item["set_a"]["value"] +"<br>" +
+                                    item["set_a"]["amount-value"] +"<br>" +
+                                    item["set_a"]["amount-total"] +
+                                    "</td>" +
+                                    "<td>" +
+                                    item["set_b"]["set"]+"<br>" +
+                                    item["set_b"]["attribute"]+"<br>" +
+                                    item["set_b"]["value"] +"<br>" +
+                                    item["set_b"]["amount-value"] +"<br>" +
+                                    item["set_b"]["amount-total"] +
+                                    "</td>" +
+//                                        "<td>"+item["pearsons"]+"</td>" +
+                                    "<td style=\"background-color: rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ");\">"+item["pearsons"]+"</td>" +
+                                    "<td><input type='button' id='start-detail' value='Details' onclick='showDetails(\""+key+"\");'></td></tr>";
                         });
                         zvc = countAvgDeviationViolation(data);
-                        result += "</table>";
+                        result += "</tbody></table>";
                         $("#associations-results").html( result );
+                        var corrResultsTable = $("#correlation_results_table").dataTable({
+                            "aaSorting": [[ 3, "desc" ]],
+                            "aoColumnDefs": [
+                                { 'bSortable': false, 'aTargets': [ 0, 1, 2, 4 ] }
+                            ],
+                            "bFilter": true
+
+                        });
+                        $.fn.dataTableExt.afnFiltering.push(
+                            function( oSettings, aData, iDataIndex ) {
+                                var iMin = corrMin;
+                                var iMax = corrMax;
+                                var pearson = Math.abs(aData[3]);
+
+//                                Math.abs(item["pearsons"])
+
+                                if ( iMin <= pearson && pearson <= iMax ) {
+                                    return true;
+                                }
+                                return false;
+                            }
+                        );
+                        corrResultsTable.fnDraw(true);
+                        $( "#correlation-range" ).slider({
+                            slide: function(event, ui){
+                                $( "#min-correlation-val" ).html( ui.values[0]);
+                                $( "#max-correlation-val" ).html( ui.values[1]);
+                                corrMin = ui.values[0];
+                                corrMax = ui.values[1];
+                                corrResultsTable.fnDraw(true);
+                            }
+                        });
                         grid.buildGrid();
                         for (var j = 0; j < zvc.length; j++){
                             if(zvc[j] > 3){
                                 grid.tiles[j].fillOpacity = 0.5;
                             }
-                            console.log(j + ": " + zvc[j]);
                         }
+
                     });
         } else {
             $("#associations-results").html("Geen geldige selectie van data set(s) en attributen.");
@@ -321,10 +352,10 @@ window.onload = function(){
 	                }
 	            });
 // --------------------- for testing purposes only !!! ------------------------------------------------
-                $('#collections1 :nth-child(5)').attr('selected', 'selected');
-                $('#collections1 :nth-child(5)').change();
+                $('#collections1 :nth-child(6)').attr('selected', 'selected');
+                $('#collections1 :nth-child(6)').change();
 
-                $( "#zones" ).slider.slide();
+//                $( "#zones" ).slider.slide();
 // ----------------------------- end testing ----------------------------------------------------------
 
             });
@@ -385,6 +416,16 @@ function round(num, dec) {
     var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec);
     return result;
 }
+
+function color(pearson) {
+//    -1 , 0,  1 = 2
+    0 = -1
+    1 = 120
+
+            (pearson + 1) * 120
+
+}
+
 </script>
 </body>
 </html>
