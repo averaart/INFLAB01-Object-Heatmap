@@ -50,40 +50,40 @@
     <h1>Verbandenzoeker</h1>
     <p>Hier kunt u van alles doen.</p>
     <div id="map-area"  style="width: 500px; height: 500px;"></div>
-    <!--<form class="form-horizontal" id="analyzer" method="post">-->
-        <!--<fieldset>-->
-            <!--<legend>Analyse</legend>-->
-            <!--<div class="control-group">-->
-                <!--<label class="control-label" for="pearson-accuracy">Pearsons nauwkeurigheid</label>-->
-                <!--<div class="controls">-->
-                    <!--<input type="text" class="input-xlarge" id="pearson-accuracy">-->
-                <!--</div>-->
-            <!--</div>-->
-            <!--<div class="control-group">-->
-                <!--<label class="control-label" for="zone-size">Zone grootte</label>-->
-                <!--<div class="controls">-->
-                    <!--<input type="text" class="input-xlarge" id="zone-size">-->
-                <!--</div>-->
-            <!--</div>-->
-            <!--&lt;!&ndash; Data set 1 &ndash;&gt;-->
-            <!--<div class="control-group">-->
-                <!--<label class="control-label" for="data-set-1">Data set 1</label>-->
-                <!--<div class="controls">-->
-                    <!--<select id="data-set-1" class="input-xlarge">-->
-                        <!--<option></option>-->
-                    <!--</select>-->
-                <!--</div>-->
-            <!--</div>-->
-            <!--&lt;!&ndash; Attributes data set 1 &ndash;&gt;-->
-            <!--<div class="control-group">-->
-                <!--<label class="control-label" for="attributes-data-set-1">Attributen data set 1</label>-->
-                <!--<div class="controls">-->
-                    <!--<select id="attributes-data-set-1" class="input-xlarge" multiple="multiple">-->
-                        <!--<option></option>-->
-                    <!--</select>-->
-                    <!--<p class="help-block">U kunt meerdere attributen selecteren door meerdere keren op het selectieveld te klikken.</p>-->
-                <!--</div>-->
-            <!--</div>-->
+    <form class="form-horizontal" id="analyzer" method="post">
+        <fieldset>
+            <legend>Analyse</legend>
+            <div class="control-group">
+                <label class="control-label" for="pearson-accuracy">Pearsons nauwkeurigheid</label>
+                <div class="controls">
+                    <input type="text" class="input-xlarge" id="pearson-accuracy">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="zone-size">Zone grootte</label>
+                <div class="controls">
+                    <input type="text" class="input-xlarge" id="zone-size">
+                </div>
+            </div>
+            <!-- Data set 1 -->
+            <div class="control-group">
+                <label class="control-label" for="data-set-1">Data set 1</label>
+                <div class="controls">
+                    <select id="data-set-1" class="input-xlarge">
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+            <!-- Attributes data set 1 -->
+            <div class="control-group">
+                <label class="control-label" for="attributes-data-set-1">Attributen data set 1</label>
+                <div class="controls">
+                    <select id="attributes-data-set-1" class="input-xlarge" multiple="multiple">
+                        <option></option>
+                    </select>
+                    <p class="help-block">U kunt meerdere attributen selecteren door meerdere keren op het selectieveld te klikken.</p>
+                </div>
+            </div>
             <!--&lt;!&ndash; Data set 2 &ndash;&gt;-->
             <!--<div class="control-group">-->
                 <!--<label class="control-label" for="data-set-2">Data set 2</label>-->
@@ -120,13 +120,13 @@
                     <!--</select>-->
                 <!--</div>-->
             <!--</div>-->
-            <!--<div class="control-group">-->
-                <!--<div class="controls">-->
-                    <!--<input class="btn btn-primary" type="submit" value="Analyseer">-->
-                <!--</div>-->
-            <!--</div>-->
-        <!--</fieldset>-->
-    <!--</form>-->
+            <div class="control-group">
+                <div class="controls">
+                    <input class="btn btn-primary" type="submit" value="Analyseer">
+                </div>
+            </div>
+        </fieldset>
+    </form>
     <form class="form-horizontal" enctype="multipart/form-data" action="/upload-data-set" method="post" id="form-data-set-upload">
         <fieldset>
             <legend>Nieuwe data set toevoegen</legend>
@@ -162,22 +162,21 @@
 <!-- Placed at the end of the document so the pages load faster -->
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
-<script src="//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.1/jquery.dataTables.min.js"></script>
 <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
 <script src="/static/js/select2.js"></script>
 <script src="/static/js/inflab.js"></script>
 <script type="text/javascript">
     $('#data-set-1').select2({placeholder: "Kies een dataset", allowClear: true});
-    $('#data-set-2').select2({placeholder: "Kies een dataset", allowClear: true});
-    $('#data-set-3').select2({placeholder: "Kies een dataset", allowClear: true});
+//    $('#data-set-2').select2({placeholder: "Kies een dataset", allowClear: true});
+//    $('#data-set-3').select2({placeholder: "Kies een dataset", allowClear: true});
     $('#attributes-data-set-1').select2({placeholder: "Kies één of meerder attributen", allowClear: true});
     $('#attributes-data-set-1').select2('disable');
-    $('#attributes-data-set-2').select2({placeholder: "Kies één of meerder attributen", allowClear: true});
-    $('#attributes-data-set-2').select2('disable');
-    $('#attributes-data-set-3').select2({placeholder: "Kies één of meerder attributen", allowClear: true});
-    $('#attributes-data-set-3').select2('disable');
+//    $('#attributes-data-set-2').select2({placeholder: "Kies één of meerder attributen", allowClear: true});
+//    $('#attributes-data-set-2').select2('disable');
+//    $('#attributes-data-set-3').select2({placeholder: "Kies één of meerder attributen", allowClear: true});
+//    $('#attributes-data-set-3').select2('disable');
     initMap("map-area");
 </script>
-<script src="/static/js/common.js"></script>
+<script src="//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.1/jquery.dataTables.min.js"></script>
 </body>
 </html>
