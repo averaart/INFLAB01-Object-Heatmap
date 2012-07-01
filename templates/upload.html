@@ -4,18 +4,18 @@
 <div>
     {% if success %}
     <div class="alert alert-success">
-        <h4 class="alert-heading">Uploaden dataset geslaagd.</h4>
+        <h4 class="alert-heading">Toevoegen dataset geslaagd.</h4>
         <p>{{ message }}</p>
     </div>
     {% else %}
     <div class="alert alert-error">
-        <h4 class="alert-heading">Uploaden dataset mislukt.</h4>
-        <p>Hier staat de verklaring waarom het is mislukt.</p>
+        <h4 class="alert-heading">Toevoegen dataset mislukt.</h4>
+        <p>{{ message }}Deze melding moet nog dynamisch worden.</p>
     </div>
     {% endif %}
     <form class="form-horizontal" enctype="multipart/form-data" action="/upload-dataset" method="post" id="form-data-set-upload">
         <fieldset>
-            <legend>Dataset toevoegen</legend>
+            <legend>Voeg een dataset toe</legend>
             <div class="control-group">
                 <label class="control-label" for="data-set-name">Naam dataset</label>
                 <div class="controls">
