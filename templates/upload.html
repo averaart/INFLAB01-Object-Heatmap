@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div>
+    {% if success %}
+    <div class="alert alert-success">
+        <h4 class="alert-heading">Uploaden dataset geslaagd.</h4>
+        <p>{{ message }}</p>
+    </div>
+    {% else %}
+    <div class="alert alert-error">
+        <h4 class="alert-heading">Uploaden dataset mislukt.</h4>
+        <p>Hier staat de verklaring waarom het is mislukt.</p>
+    </div>
+    {% endif %}
+    <form class="form-horizontal" enctype="multipart/form-data" action="/upload-dataset" method="post" id="form-data-set-upload">
+        <fieldset>
+            <legend>Dataset toevoegen</legend>
+            <div class="control-group">
+                <label class="control-label" for="data-set-name">Naam dataset</label>
+                <div class="controls">
+                    <input type="text" class="input-xlarge" id="data-set-name" name="data-set-name">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="shp-file">.shp bestand</label>
+                <div class="controls">
+                    <input type="file" class="input-file" id="shp-file" name="shp-file">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="dbf-file">.dbf bestand</label>
+                <div class="controls">
+                    <input type="file" class="input-file" id="dbf-file" name="dbf-file">
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="controls">
+                    <input class="btn btn-primary" type="submit" value="Upload data set">
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>
+{% endblock %}
