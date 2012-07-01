@@ -1,91 +1,132 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Verbandenzoeker</h1>
-    {% if message %}
-    <div class="alert alert-error">
-        <h4 class="alert-heading">Analyse is niet gelukt.</h4>
-        <p>{{ message }}</p>
-    </div>
-    {% endif %}
-    <div id="map-area"  style="width: 500px; height: 500px;"></div>
-    <form class="form-horizontal" id="analyzer" method="post" action="/analyseer">
-        <fieldset>
-            <legend>Analyse</legend>
-            <div class="control-group">
-                <label class="control-label" for="pearson-accuracy">Pearsons nauwkeurigheid</label>
-                <div class="controls">
-                    <input type="text" class="input-xlarge" id="pearson-accuracy">
+{% if message %}
+<div class="alert alert-error">
+    <h4 class="alert-heading">Analyse is niet gelukt.</h4>
+    <p>{{ message }}</p>
+</div>
+{% endif %}
+<div class="row">
+    <div class="span7">
+        <h2>Analyse</h2>
+        <form class="form-horizontal" id="analyzer-settings" method="post" action="/analyseer">
+            <fieldset>
+                <legend>Algemeen</legend>
+                <div class="control-group">
+                    <label class="control-label" for="pearson-accuracy">Pearsons nauwkeurigheid</label>
+                    <div class="controls">
+                        <input type="text" class="input-xlarge" id="pearson-accuracy">
+                    </div>
                 </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="zone-size">Zone grootte</label>
-                <div class="controls">
-                    <input type="text" class="input-xlarge" id="zone-size">
+                <div class="control-group">
+                    <label class="control-label" for="zone-size">Zone grootte</label>
+                    <div class="controls">
+                        <input type="text" class="input-xlarge" id="zone-size">
+                    </div>
                 </div>
-            </div>
-            <!-- Data set 1 -->
-            <div class="control-group">
-                <label class="control-label" for="data-set-1">Data set 1</label>
-                <div class="controls">
-                    <select id="data-set-1" class="input-xlarge">
-                        <option></option>
-                    </select>
+            </fieldset>
+            <fieldset>
+                <legend>Datasets</legend>
+                    <!-- Data set 1 -->
+                <div class="control-group">
+                    <label class="control-label" for="data-set-1">Data set 1</label>
+                    <div class="controls">
+                        <select id="data-set-1" class="span2">
+                            <option></option>
+                        </select>
+                        <select id="attributes-data-set-1" class="span3" multiple="multiple">
+                            <option></option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <!-- Attributes data set 1 -->
-            <div class="control-group">
-                <label class="control-label" for="attributes-data-set-1">Attributen data set 1</label>
-                <div class="controls">
-                    <select id="attributes-data-set-1" class="input-xlarge" multiple="multiple">
-                        <option></option>
-                    </select>
-                    <p class="help-block">U kunt meerdere attributen selecteren door meerdere keren op het selectieveld te klikken.</p>
+                <!-- Data set 2 -->
+                <div class="control-group">
+                    <label class="control-label" for="data-set-2">Data set 2</label>
+                    <div class="controls">
+                        <select id="data-set-2" class="span2">
+                            <option></option>
+                        </select>
+                        <select id="attributes-data-set-2" class="span3" multiple="multiple">
+                            <option></option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <!--&lt;!&ndash; Data set 2 &ndash;&gt;-->
-            <!--<div class="control-group">-->
-            <!--<label class="control-label" for="data-set-2">Data set 2</label>-->
-            <!--<div class="controls">-->
-            <!--<select id="data-set-2" class="input-xlarge">-->
-            <!--<option></option>-->
-            <!--</select>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--&lt;!&ndash; Attributes data set 2 &ndash;&gt;-->
-            <!--<div class="control-group">-->
-            <!--<label class="control-label" for="attributes-data-set-2">Attributen data set 2</label>-->
-            <!--<div class="controls">-->
-            <!--<select id="attributes-data-set-2" class="input-xlarge" multiple="multiple">-->
-            <!--<option></option>-->
-            <!--</select>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--&lt;!&ndash; Data set 3 &ndash;&gt;-->
-            <!--<div class="control-group">-->
-            <!--<label class="control-label" for="data-set-3">Data set 3</label>-->
-            <!--<div class="controls">-->
-            <!--<select id="data-set-3" class="input-xlarge">-->
-            <!--<option></option>-->
-            <!--</select>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--&lt;!&ndash; Attributes data set 3 &ndash;&gt;-->
-            <!--<div class="control-group">-->
-            <!--<label class="control-label" for="attributes-data-set-3">Attributen data set 3</label>-->
-            <!--<div class="controls">-->
-            <!--<select id="attributes-data-set-3" class="input-xlarge" multiple="multiple">-->
-            <!--<option></option>-->
-            <!--</select>-->
-            <!--</div>-->
-            <!--</div>-->
+                <!-- Data set 3 -->
+                <div class="control-group">
+                    <label class="control-label" for="data-set-3">Data set 3</label>
+                    <div class="controls">
+                        <select id="data-set-3" class="span2">
+                            <option></option>
+                        </select>
+                        <select id="attributes-data-set-3" class="span3" multiple="multiple">
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+            </fieldset>
             <div class="control-group">
                 <div class="controls">
                     <input class="btn btn-primary" type="submit" value="Analyseer">
                 </div>
             </div>
-        </fieldset>
-    </form>
+        </form>
+        <h2>Resultaten</h2>
+        <table class="table table-bordered" id="analysis-results">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Username</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1</td>
+                <td>Mark</td>
+                <td>Otto</td>
+                <td>@mdo</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Jacob</td>
+                <td>Thornton</td>
+                <td>@fat</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Larry</td>
+                <td>the Bird</td>
+                <td>@twitter</td>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>Mark</td>
+                <td>Otto</td>
+                <td>@mdo</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Jacob</td>
+                <td>Thornton</td>
+                <td>@fat</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Larry</td>
+                <td>the Bird</td>
+                <td>@twitter</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="span5">
+        <div id="map-area-container">
+            <div id="map-area"></div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block js %}
@@ -95,14 +136,23 @@
     <script src="/static/js/inflab.js"></script>
     <script type="text/javascript">
         $('#data-set-1').select2({placeholder: "Kies een dataset", allowClear: true});
-        //    $('#data-set-2').select2({placeholder: "Kies een dataset", allowClear: true});
-        //    $('#data-set-3').select2({placeholder: "Kies een dataset", allowClear: true});
+        $('#data-set-2').select2({placeholder: "Kies een dataset", allowClear: true});
+        $('#data-set-3').select2({placeholder: "Kies een dataset", allowClear: true});
         $('#attributes-data-set-1').select2({placeholder: "Kies één of meerder attributen", allowClear: true});
         $('#attributes-data-set-1').select2('disable');
-        //    $('#attributes-data-set-2').select2({placeholder: "Kies één of meerder attributen", allowClear: true});
-        //    $('#attributes-data-set-2').select2('disable');
-        //    $('#attributes-data-set-3').select2({placeholder: "Kies één of meerder attributen", allowClear: true});
-        //    $('#attributes-data-set-3').select2('disable');
+        $('#attributes-data-set-2').select2({placeholder: "Kies één of meerder attributen", allowClear: true});
+        $('#attributes-data-set-2').select2('disable');
+        $('#attributes-data-set-3').select2({placeholder: "Kies één of meerder attributen", allowClear: true});
+        $('#attributes-data-set-3').select2('disable');
         initMap("map-area");
+        $("#analysis-results").dataTable({
+            "aaSorting": [[ 3, "desc" ]],
+            "bPaginate": false,
+            "aoColumnDefs": [
+                { 'bSortable': false, 'aTargets': [ 0, 1, 2 ] }
+            ],
+            "sDom": '<"top"f><"class">'
+        });
+
     </script>
 {% endblock %}

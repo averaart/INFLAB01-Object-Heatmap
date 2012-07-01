@@ -1,0 +1,20 @@
+#map-area-container {
+    float:left;
+    width:470px;
+    height:470px;
+}
+#map-area {
+    width:470px;
+    height:470px;
+    position: fixed !important;
+    /*z-index: 99;*/
+}
+#analyzer-settings,
+#analysis-results {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.select2-container.span2,
+#data-set-1 .span2 {
+    margin-left: 0;
+}

@@ -1,0 +1,114 @@
+body { background-color: #eeeeee;
+    margin: 0;
+    padding: 0;
+    font-family: "Helvetica Neue", Arial;
+    font-weight: lighter;
+    font-size: 13px; }
+
+label {
+    display: inline-block;
+    width: 125px;
+}
+
+td {
+    width:auto;
+    min-width:10px;
+}
+.collection-selector { display: inline-block; padding: 0 20px 40px 0;}
+
+.date { display: inline-block;
+    width: 165px; }
+.time { display: inline-block;
+    width: 120px; }
+.date_option { display: inline-block;
+    width: 40px;}
+.last { padding-bottom: 20px;}
+#opmerking {
+    font-style:italic;
+    font-size: 15px;
+}
+
+#wrapper {
+    margin: 5em auto;
+    padding: 1.5em 1.5em;
+    background-color: #ffffff;
+    -webkit-box-shadow: 0px 0px 15px 0px rgba(00, 00, 00, 1);
+    -moz-box-shadow: 0px 0px 15px 0px rgba(00, 00, 00, 1);
+    box-shadow: 0px 0px 15px 0px rgba(00, 00, 00, 1);
+    overflow: auto;
+}
+#content h1{ margin: 0 0 1em; }
+
+#left {
+    width: 400px;
+    min-height:402px;
+    float: left;
+    margin-right: 1.5em;
+    margin-bottom: 1.5em;
+}
+#right {
+    width: 940px;
+    float: left;
+}
+#mapArea {
+    float:left;
+    width:400px;
+    height:400px;
+    border:1px solid black;
+    /*margin-bottom: 6.5em;*/
+    position: fixed !important;
+    top: 6.5em;
+    left: 1.5em;
+    z-index: 99;
+}
+#upload {
+    width: 900px;
+}
+
+.attributes {
+    width: 110px;
+}
+
+
+#controllers-analyser, #upload {
+    float: left;
+    padding: 20px;
+    background-color: #f0f0f0;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    margin-bottom: 1.5em;
+    width: 900px;
+}
+.controller { height: 25px; }
+.controller .label, .controller .slider {
+    float: left;
+    width: 175px;
+}
+.controller .dash { float: left; width: 10px;}
+.controller .value,
+.controller .value-left,
+.controller .value-right {
+    float: left;
+    width: 100px;
+    font-weight: bold;
+}
+.controller .value-left { width: 25px;}
+.controller .value-right { width: 65px;}
+
+.ui-slider-horizontal,
+.ui-slider-handle.ui-state-default.ui-corner-all {
+    border-color: #888;
+}
+
+.clearfix { display: inline-block; }
+.clearfix:after {
+    content: ".";
+    display: block;
+    clear: both;
+    visibility: hidden;
+    line-height: 0;
+    height: 0;
+}
+
+td { font-size: 13px;}
