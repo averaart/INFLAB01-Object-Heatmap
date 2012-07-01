@@ -2,9 +2,14 @@
 
 {% block content %}
     <h1>Verbandenzoeker</h1>
-    <p>Hier kunt u van alles doen.</p>
+    {% if message %}
+    <div class="alert alert-error">
+        <h4 class="alert-heading">Analyse is niet gelukt.</h4>
+        <p>{{ message }}</p>
+    </div>
+    {% endif %}
     <div id="map-area"  style="width: 500px; height: 500px;"></div>
-    <form class="form-horizontal" id="analyzer" method="post">
+    <form class="form-horizontal" id="analyzer" method="post" action="/analyseer">
         <fieldset>
             <legend>Analyse</legend>
             <div class="control-group">

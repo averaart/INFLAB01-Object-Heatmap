@@ -19,5 +19,9 @@ def newDataSet():
     else:
         return render_template('upload.html')
 
+@app.route('/analyseer', methods=['POST'])
+def analyze():
+    return render_template('home.html', message="De analyse moet nog gekoppeld worden.")
+
 if __name__ == "__main__":
     app.run(debug=True)
