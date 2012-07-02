@@ -4,6 +4,7 @@ from flask.globals import request
 from analyze import Analyzer
 from mongo_tools import MongoTools
 from upload import DataSetUploader
+import json
 
 app = Flask(__name__)
 
@@ -24,7 +25,7 @@ def new_data_set():
 @app.route('/analyseer', methods=['POST'])
 def analyze():
     a = Analyzer()
-    return str(a.analyze())
+    return json.dumps(a.analyze())
 
 @app.route('/collecties', methods=['POST'])
 def collections():

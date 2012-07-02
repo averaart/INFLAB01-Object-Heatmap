@@ -154,7 +154,7 @@ initAnalysisPage = function(){
             $('td:eq(3)', nRow).css( 'background-color', 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')');
         }
     });
-}
+};
 
 
 
