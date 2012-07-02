@@ -108,12 +108,17 @@ initAnalysisPage = function(){
     );
 
     $("#start-analysis").click(function() {
+        // Clear current results in table
+        $('#analysis-results').dataTable().fnClearTable();
+        // Show loading image
         $("#loading-analysis-results").css('display', 'block');
+        // Request analysis results
         $.ajax({ url: '/analyseer', type: 'POST'}).done(
             function( data ) {
                 $("#loading-analysis-results").css('display', 'none');
                 data = $.parseJSON(data);
                 var dataToAdd = [];
+                // Push each result to data
                 $.each(data, function(key, item){
                     dataToAdd.push([
                         1,
@@ -139,8 +144,7 @@ initAnalysisPage = function(){
      */
     $('#analysis-results').dataTable({
         'aaSorting': [[ 3, 'desc' ]],
-        'bPaginate': false,
-        'bFilter': false,
+        'bPaginate': true,
         'aoColumnDefs': [
             { 'bSortable': false, 'aTargets': [ 0, 1, 2 ] }
         ],
