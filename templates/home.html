@@ -15,7 +15,7 @@
     </div>
     <div class="span7 section">
         <h2><a name="analyse">Analyse</a></h2>
-        <form class="form-horizontal" id="analyzer-settings" method="post" action="/analyseer">
+        <form class="form-horizontal" id="analyzer-settings">
             <fieldset>
                 <legend>Algemeen</legend>
                 <div class="control-group">
@@ -73,36 +73,30 @@
                 </div>
             </fieldset>
             <div class="control-group">
-                <input class="btn btn-primary" type="submit" value="Analyseer">
+                <input id="start-analysis" class="btn btn-primary" type="button" value="Analyseer">
             </div>
         </form>
     </div>
 </div>
 <div class="row">
+    <div class="span5">
+        <div id="data-table-controls-container">
+            <div id="data-table-controls"></div>
+        </div>
+    </div>
     <div class="span7 offset5 section">
         <h2><a name="resultaten">Resultaten</a></h2>
+        <img id="loading-analysis-results" class="loading" src="/static/img/spinner.gif" alt="loading">
         <table class="table table-bordered" id="analysis-results">
             <thead>
             <tr>
                 <th>#</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th class="sortable">Username<span class="sort-icon"></span></th>
+                <th>Serie 1</th>
+                <th>Serie 2</th>
+                <th class="sortable">Correlatie<span class="sort-icon"></span></th>
             </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>@mdo</td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>Jacob</td>
-                    <td>Thornton</td>
-                    <td>@fat</td>
-                </tr>
             </tbody>
         </table>
     </div>

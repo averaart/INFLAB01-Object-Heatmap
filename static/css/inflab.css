@@ -40,3 +40,8 @@
     background: url('/static/img/glyphicons-halflings.png') no-repeat -430px -119px;
 }
 .sortable:hover { cursor: pointer; }
+.loading {
+    margin-bottom: 10px;
+    float: left;
+    display: none;
+}
