@@ -1,6 +1,7 @@
 import os
 from flask import Flask, render_template
 from flask.globals import request
+from analyze import Analyzer
 from mongo_tools import MongoTools
 from upload import DataSetUploader
 
@@ -22,7 +23,8 @@ def new_data_set():
 
 @app.route('/analyseer', methods=['POST'])
 def analyze():
-    return render_template('home.html', message="De analyse moet nog gekoppeld worden.")
+    a = Analyzer()
+    return str(a.analyze())
 
 @app.route('/collecties', methods=['POST'])
 def collections():

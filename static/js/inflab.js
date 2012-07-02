@@ -3,7 +3,6 @@
  * Date: 1-7-12
  */
 
-
 initAnalysisPage = function(){
     /**
      * Initialize a Google maps  map

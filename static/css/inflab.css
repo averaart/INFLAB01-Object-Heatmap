@@ -37,6 +37,6 @@
     height: 14px;
     float: right;
     display: block;
-    background: url('/static/img/glyphicons-halflings.png') no-repeat -430px -120px;
+    background: url('/static/img/glyphicons-halflings.png') no-repeat -430px -119px;
 }
 .sortable:hover { cursor: pointer; }
