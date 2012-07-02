@@ -1,6 +1,7 @@
 import os
 from flask import Flask, render_template
 from flask.globals import request
+from mongo_tools import MongoTools
 from upload import DataSetUploader
 
 app = Flask(__name__)
@@ -10,7 +11,7 @@ def main():
     return render_template('home.html')
 
 @app.route('/voeg-dataset-toe', methods=['GET', 'POST'])
-def newDataSet():
+def new_data_set():
     if request.method == 'POST':
         dsu = DataSetUploader()
         dsu.upload()
@@ -23,5 +24,16 @@ def newDataSet():
 def analyze():
     return render_template('home.html', message="De analyse moet nog gekoppeld worden.")
 
+@app.route('/collecties', methods=['POST'])
+def collections():
+    mt = MongoTools()
+    return str(mt.load_collections())
+
+@app.route('/attributen', methods=['POST'])
+def attributes():
+    mt  = MongoTools()
+    return str(mt.load_attributes(request.form['set']))
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
