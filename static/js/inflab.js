@@ -3,6 +3,119 @@
  * Date: 1-7-12
  */
 
+var minAbsCorr;
+var maxAbsCorr;
+
+
+/**
+ * Keeper of all data! :P
+ * After each analysis, the result is stored here.
+ */
+var data;
+
+/**
+ * I've got the Key, I've got the secreeeeet!...
+ * Oh, ahem, sorry...
+ *
+ * This is the key of the element in "data" that is being inspected.
+ * Look at the function showZoneDetails to see why.
+ */
+var key;
+
+/**
+ * Well..., the map. Duh!
+ */
+var map;
+
+/**
+ * The grid that gets drawn over the map
+ */
+var grid = {
+
+    tiles : new Array(), // stores all the tiles of the tiles
+    map : null,         // holds the map
+    columns: null,        // number of colums of tiles
+    rows: null,           // number of rows of tiles
+
+    /**
+     * Init this grid
+     */
+    init : function init(map, zones){
+        this.map = map;
+        this.columns = zones;
+        this.rows = zones;
+    },
+
+    /**
+     * Update settings
+     */
+    update : function update(zones){
+        this.columns = zones;
+        this.rows = zones;
+    },
+
+    /**
+     *
+     * Build a grid overlay over the map.
+     */
+    buildGrid : function buildGrid() {
+
+        var bounds = this.map.getBounds();
+
+        var x = bounds.getSouthWest().lng();
+        var y = bounds.getNorthEast().lat();
+        var xDiff = (bounds.getNorthEast().lng() - x)/this.columns;
+        var yDiff = (y - bounds.getSouthWest().lat())/this.rows;
+
+        var rectOpt = {
+            clickable: true,
+            strokeColor: "#000",
+            strokeOpacity: 1,
+            strokeWeight: 0.5,
+            fillColor: "#FF0000",
+            fillOpacity: 0.0,
+            map: this.map
+        };
+
+        for (var j = 0; j < this.rows; j++) {  // Goes vertical
+            for (var i = 0; i < this.columns; i++) { // Goes horizontal
+                // Create LatLngBounds for each tile.
+                rectOpt.bounds = new google.maps.LatLngBounds(
+                    new google.maps.LatLng(
+                        y - Number(yDiff * j),
+                        x + Number(xDiff * (i))
+                    ),
+                    new google.maps.LatLng(
+                        y - Number(yDiff * (j+1)),
+                        x + Number(xDiff * (i+1))
+                    )
+                );
+                // Make Tile, store it, and add listener to it.
+                var r = new google.maps.Rectangle(rectOpt);
+                r.my_number = j*this.columns+i;
+                var zone = (j*this.columns+i);
+                google.maps.event.addListener(r, 'click', function() {
+                    showZoneDetails(this.my_number);
+                });
+                this.tiles[j*this.columns+i] = r;
+            }
+        }
+    },
+
+
+
+    /**
+     * Removes the grid from the map.
+     */
+    removeGrid : function() {
+        for(var i = 0; i < this.tiles.length; i++){
+            this.tiles[i].setMap(null);
+        }
+        this.tiles = new Array();
+    }
+};
+
+
 initAnalysisPage = function(){
     /**
      * Initialize a Google maps map
@@ -257,17 +370,7 @@ initAnalysisPage = function(){
 
 };
 
-var minAbsCorr;
-var maxAbsCorr;
 
-
-/**
- * Keeper of all data! :P
- * After each analysis, the result is stored here.
- */
-var data;
-
-var map;
 function initMap(id) {
     var myLatlng = new google.maps.LatLng(51.9209866008, 4.47188401315);
     var options = {
@@ -284,87 +387,6 @@ function initMap(id) {
     };
     map = new google.maps.Map(document.getElementById("map-area"), options);
 }
-
-var grid = {
-
-    tiles : new Array(), // stores all the tiles of the tiles
-    map : null,         // holds the map
-    columns: null,        // number of colums of tiles
-    rows: null,           // number of rows of tiles
-
-    /**
-     * Init this grid
-     */
-    init : function init(map, zones){
-        this.map = map;
-        this.columns = zones;
-        this.rows = zones;
-    },
-
-    /**
-     * Update settings
-     */
-    update : function update(zones){
-        this.columns = zones;
-        this.rows = zones;
-    },
-
-    /**
-     *
-     * Build a grid overlay over the map.
-     */
-    buildGrid : function buildGrid() {
-
-        var bounds = this.map.getBounds();
-
-        var x = bounds.getSouthWest().lng();
-        var y = bounds.getNorthEast().lat();
-        var xDiff = (bounds.getNorthEast().lng() - x)/this.columns;
-        var yDiff = (y - bounds.getSouthWest().lat())/this.rows;
-
-        var rectOpt = {
-            clickable: true,
-            strokeColor: "#000",
-            strokeOpacity: 1,
-            strokeWeight: 0.5,
-            fillColor: "#FF0000",
-            fillOpacity: 0.0,
-            map: this.map
-        };
-
-        for (var j = 0; j < this.rows; j++) {  // Goes vertical
-            for (var i = 0; i < this.columns; i++) { // Goes horizontal
-                // Create LatLngBounds for each tile.
-                rectOpt.bounds = new google.maps.LatLngBounds(
-                    new google.maps.LatLng(
-                        y - Number(yDiff * j),
-                        x + Number(xDiff * (i))
-                    ),
-                    new google.maps.LatLng(
-                        y - Number(yDiff * (j+1)),
-                        x + Number(xDiff * (i+1))
-                    )
-                );
-                // Make Tile, store it, and add listener to it.
-                var r = new google.maps.Rectangle(rectOpt);
-                this.tiles[j*this.columns+i] = r;
-            }
-        }
-    },
-
-
-
-    /**
-     * Removes the grid from the map.
-     */
-    removeGrid : function() {
-        for(var i = 0; i < this.tiles.length; i++){
-            this.tiles[i].setMap(null);
-        }
-        this.tiles = new Array();
-    }
-};
-
 
 /**
  * HSV to RGB color conversion
@@ -447,6 +469,7 @@ function hsvToRgb(h, s, v) {
 
 
 function showDetails(combKey){
+    key = combKey
     var pearson = data[combKey]["pearsons"];
     var sub = data[combKey]["sub"];
     var dev = data[combKey]["avg_deviation"];
@@ -483,12 +506,7 @@ function showDetails(combKey){
                 };
             }
         }
-        var result = "<p>"
-        result += "Algemene correlatie: "+round(pearson, 3)+"<br>";
-        result += "Gemiddelde afwijking: +/-"+round(dev, 3)+"<br>";
-        result += "Locale correlatie: "+round(sub[i], 3)+"<br>";
-        result += "</p>";
-        console.log(i);
+
         grid.tiles[i].setOptions(my_rectOpt);
     }
 }
@@ -496,4 +514,17 @@ function showDetails(combKey){
 function round(num, dec) {
     var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec);
     return result;
+}
+
+function showZoneDetails(zone){
+    var pearson = data[key]["pearsons"];
+    var sub = data[key]["sub"];
+    var dev = data[key]["avg_deviation"];
+
+    var result = "<p>";
+    result += "Algemene correlatie: "+round(pearson, 3)+"<br>";
+    result += "Gemiddelde afwijking: +/-"+round(dev, 3)+"<br>";
+    result += "Locale correlatie: "+round(sub[zone], 3)+"<br>";
+    result += "</p>";
+    $("#zone-info-container").html(result);
 }
