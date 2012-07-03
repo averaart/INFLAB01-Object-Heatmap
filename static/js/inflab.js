@@ -39,6 +39,20 @@ initAnalysisPage = function(){
         }
     });
 
+    minAbsCorr = 0.5;
+    maxAbsCorr = 1.0;
+    $( "#absolute-pearson-range-value-1").html(minAbsCorr);
+    $( "#absolute-pearson-range-value-2").html(maxAbsCorr);
+    $( "#absolute-pearson-range-slider" ).slider({
+        values: [minAbsCorr, maxAbsCorr],
+        min: 0.0,
+        max: 1.0,
+        step: 0.1,
+        slide: function(event, ui) {
+            //
+        }
+    });
+
     /**
      * Init the data set and attributes selectors.
      */
@@ -111,7 +125,7 @@ initAnalysisPage = function(){
         // Clear current results in table
         $('#analysis-results').dataTable().fnClearTable();
         // Show loading image
-        $("#loading-analysis-results").css('display', 'block');
+        $("#loading-analysis-results").css('display', 'inline');
         // Request analysis results
         $.ajax({ url: '/analyseer', type: 'POST'}).done(
             function( data ) {
@@ -142,6 +156,10 @@ initAnalysisPage = function(){
      * Make a data table of the results of the analysis.
      * It can sort on the third column (pearson correlation).
      */
+    $.fn.dataTableExt.oStdClasses.sPagePrevEnabled = 'btn';
+    $.fn.dataTableExt.oStdClasses.sPagePrevDisabled = 'btn disabled';
+    $.fn.dataTableExt.oStdClasses.sPageNextEnabled = 'btn';
+    $.fn.dataTableExt.oStdClasses.sPageNextDisabled = 'btn disabled';
     $('#analysis-results').dataTable({
         'aaSorting': [[ 3, 'desc' ]],
         'bPaginate': true,
@@ -154,8 +172,69 @@ initAnalysisPage = function(){
             $('td:eq(3)', nRow).css( 'background-color', 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')');
         }
     });
+    $.fn.dataTableExt.afnFiltering.push(
+        function( oSettings, aData, iDataIndex ) {
+            var iMin = minAbsCorr;
+            var iMax = maxAbsCorr;
+            var pearson = Math.abs(aData[3]);
+            return ( iMin <= pearson && pearson <= iMax );
+        }
+    );
+    $('#absolute-pearson-range-slider').slider()
+        .bind('slide', function(event, ui){
+            console.log('asd');
+            $( "#absolute-pearson-range-value-1" ).html( ui.values[0]);
+            $( "#absolute-pearson-range-value-2" ).html( ui.values[1]);
+            minAbsCorr = ui.values[0];
+            maxAbsCorr = ui.values[1];
+            $('#analysis-results').dataTable().fnDraw(true);
+        });
+
+    ////////////////////////////////////////
+    // Hack the result table controls to  //
+    // be displayed under the map         //
+    ////////////////////////////////////////
+
+    $('<div/>', { class: 'control-group' }).append($('#analysis-results_paginate'))
+        .insertBefore($('#data-table-controls').find('.control-group').first());
+    $('#analysis-results_paginate').addClass('controls');
+
+    $('<label/>', { class: 'control-label'}).append('Pagineer')
+        .insertBefore($('#analysis-results_paginate'));
+
+    $('#analysis-results_paginate').append($('#analysis-results_info'));
+    $('#analysis-results_info').addClass('help-block');
+
+
+    $($('<div/>', { class: 'controls' }).appendTo($('#analysis-results_length')));
+    $('#analysis-results_length')
+        .addClass('control-group')
+        .insertBefore($('#data-table-controls').find('.control-group').first())
+        .find('select').first()
+        .appendTo($('#analysis-results_length').find('.controls').first())
+        .select2();
+    $('#analysis-results_length')
+        .find('label').first().attr('class', 'control-label');
+
+
+
+
+    $($('<div/>', { class: 'controls' }).appendTo($('#analysis-results_filter')));
+    $('#analysis-results_filter')
+        .addClass('control-group')
+        .appendTo('#data-table-controls')
+        .find('input').first()
+            .appendTo($('#analysis-results_filter').find('.controls').first());
+    $('#analysis-results_filter')
+        .find('label').first().attr('class', 'control-label');
+
+    ////////////////////////////////////////
+    // End of hack                        //
+    ////////////////////////////////////////
 };
 
+var minAbsCorr;
+var maxAbsCorr;
 
 
 

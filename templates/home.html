@@ -8,11 +8,6 @@
 </div>
 {% endif %}
 <div class="row">
-    <div class="span5">
-        <div id="map-area-container">
-            <div id="map-area"></div>
-        </div>
-    </div>
     <div class="span7 section">
         <h2><a name="analyse">Analyse</a></h2>
         <form class="form-horizontal" id="analyzer-settings">
@@ -24,7 +19,7 @@
                         <div><span id="pearson-accuracy-value" class="span0">0</span></div>
                         <div id="pearson-accuracy-slider" class="span3"></div>
                     </div>
-                    </div>
+                </div>
                 <div class="control-group">
                     <label class="control-label" for="zone-size-slider">Zone grootte</label>
                     <div class="controls slider-container">
@@ -35,7 +30,7 @@
             </fieldset>
             <fieldset>
                 <legend>Datasets</legend>
-                    <!-- Data set 1 -->
+                <!-- Data set 1 -->
                 <div class="control-group">
                     <label class="control-label" for="data-set-1">Data set 1</label>
                     <div class="controls">
@@ -77,16 +72,16 @@
             </div>
         </form>
     </div>
-</div>
-<div class="row">
     <div class="span5">
-        <div id="data-table-controls-container">
-            <div id="data-table-controls"></div>
+        <div id="map-area-container">
+            <div id="map-area"></div>
         </div>
     </div>
-    <div class="span7 offset5 section">
+</div>
+<div class="row">
+    <div class="span7 section">
         <h2><a name="resultaten">Resultaten</a></h2>
-        <img id="loading-analysis-results" class="loading" src="/static/img/spinner.gif" alt="loading">
+        <div id="loading-analysis-results" ><img class="loading" src="/static/img/spinner.gif" alt="loading"></div>
         <table class="table table-bordered" id="analysis-results">
             <thead>
             <tr>
@@ -99,6 +94,21 @@
             <tbody>
             </tbody>
         </table>
+    </div>
+    <div class="span5">
+        <div id="data-table-controls-container" class="form-horizontal">
+            <div id="data-table-controls">
+                <h2>Bewerk resultaten</h2>
+                <div id="pearson-slider-control-group" class="control-group">
+                    <label class="control-label" for="absolute-pearson-range-slider">Absolute Pearsons bereik</label>
+                    <div class="controls slider-container">
+                        <span id="absolute-pearson-range-value-1" class="span0">0</span>
+                        <div id="absolute-pearson-range-slider" class="span2"></div>
+                        <span id="absolute-pearson-range-value-2" class="span0">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

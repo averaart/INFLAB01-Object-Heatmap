@@ -2,6 +2,13 @@
 #analysis-results {
     margin-top: 20px;
 }
+#data-table-controls-container {
+    position: relative;
+}
+#data-table-controls {
+    float: right;
+    position: fixed;
+}
 #map-area-container {
     float:left;
     width:470px;
@@ -13,7 +20,6 @@
     position: fixed !important;
 }
 #map-area img { max-width:none; }
-
 #data-set-1 .span2,
 .select2-container.span2
  {
@@ -21,13 +27,30 @@
 }
 
 #pearson-accuracy-slider,
-#zone-size-slider {
+#zone-size-slider,
+#absolute-pearson-range-slider
+{
     margin-top: 3px;
     margin-left: 15px;
 }
 
+#pearson-accuracy-value,
+#zone-size-value,
+#absolute-pearson-range-value-1 {
+    margin-left: 0;
+}
+
+/*#absolute-pearson-range-value-2 {*/
+    /*margin-left: 5px;*/
+/*}*/
+
+#data-table-controls
+.control-group
+{
+width:470px;
+}
 .span0 { width: 30px; }
-.section { margin-bottom: 40px; }
+.section { margin-bottom: 15px; }
 .section h2 { margin-bottom: 20px; }
 .slider-container { padding-top: 10px; }
 .sortable { background-color: #f4f4f4; }
@@ -40,8 +63,10 @@
     background: url('/static/img/glyphicons-halflings.png') no-repeat -430px -119px;
 }
 .sortable:hover { cursor: pointer; }
-.loading {
+#loading-analysis-results {
     margin-bottom: 10px;
-    float: left;
     display: none;
+}
+h2 a, h2 {
+    color: #0088CC;
 }
