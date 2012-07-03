@@ -135,7 +135,7 @@ initAnalysisPage = function(){
                 // Push each result to data
                 $.each(data, function(key, item){
                     dataToAdd.push([
-                        1,
+                        '<a class="btn" tabindex="0" role="button" onclick="showDetails(\''+key+'\')" aria-controls="details-for-'+key+'">Details</a>',
                         item["set_a"]["set"]+"<br>" +
                             item["set_a"]["attribute"]+"<br>" +
                             item["set_a"]["value"] +"<br>",
@@ -146,6 +146,8 @@ initAnalysisPage = function(){
                     ]);
                 });
                 $('#analysis-results').dataTable().fnAddData(dataToAdd);
+
+                // Hier iets met het opbouwen van dat raster??
             });
     });
 
