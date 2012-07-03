@@ -42,7 +42,7 @@ class Analyzer():
         if f.has_key('rasterSize'):
             raster_size = int(f["rasterSize"])
 
-        zones = 10
+        zones = 7
         if f.has_key('zones'):
             zones = int(f["zones"])
         elif f.has_key('rasterSize'):

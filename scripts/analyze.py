@@ -55,7 +55,7 @@ raster_size = 10
 if fs.has_key('rasterSize'):
     raster_size = int(fs["rasterSize"].value)
 
-zones = 10
+zones = 7
 if fs.has_key('zones'):
     zones = int(fs["zones"].value)
 elif fs.has_key('rasterSize'):

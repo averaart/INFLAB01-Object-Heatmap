@@ -132,6 +132,9 @@ initAnalysisPage = function(){
     $("#start-analysis").click(function() {
         // Clear current results in table
         $('#analysis-results').dataTable().fnClearTable();
+        // Clear the current grid and update the grid with the most recent settings.
+        grid.removeGrid();
+        grid.update($( "#zone-size-slider" ).slider('option','value'));
         // Show loading image
         $("#loading-analysis-results").css('display', 'inline');
         // Request analysis results
@@ -299,6 +302,14 @@ var grid = {
     },
 
     /**
+     * Update settings
+     */
+    update : function update(zones){
+        this.columns = zones;
+        this.rows = zones;
+    },
+
+    /**
      *
      * Build a grid overlay over the map.
      */
@@ -337,25 +348,10 @@ var grid = {
                 // Make Tile, store it, and add listener to it.
                 var r = new google.maps.Rectangle(rectOpt);
                 this.tiles[j*this.columns+i] = r;
-                this.addGridTileListener(r, j*this.columns+i+1);
             }
         }
     },
 
-    /**
-     * Add a listener to a tile to display information about a tile.
-     * @param t Rectangle Object
-     * @param data The data to be displayed
-     */
-    addGridTileListener : function(t, tiledata) {
-        var infowindow = new google.maps.InfoWindow({
-            content: String(tiledata),
-            position: t.bounds.getCenter()
-        });
-        google.maps.event.addListener(t, 'click', function() {
-            infowindow.open(this.map);
-        });
-    },
 
 
     /**
@@ -492,7 +488,12 @@ function showDetails(combKey){
         result += "Gemiddelde afwijking: +/-"+round(dev, 3)+"<br>";
         result += "Locale correlatie: "+round(sub[i], 3)+"<br>";
         result += "</p>";
-        grid.addGridTileListener(grid.tiles[i], result);
+        console.log(i);
         grid.tiles[i].setOptions(my_rectOpt);
     }
+}
+
+function round(num, dec) {
+    var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec);
+    return result;
 }
