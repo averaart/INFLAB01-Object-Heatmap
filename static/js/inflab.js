@@ -168,7 +168,7 @@ initAnalysisPage = function(){
         ],
         "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
             console.log((Number(aData[3])+1.0)*60);
-            var rgb = hsvToRgb((Number(aData[3])+1.0)*20+40, 100, 100);
+            var rgb = hsvToRgb((Number(aData[3])+1.0)*20+40, 60, 100);
             $('td:eq(3)', nRow).css( 'background-color', 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')');
         }
     });
