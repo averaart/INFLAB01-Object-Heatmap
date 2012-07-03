@@ -42,7 +42,16 @@
                 </div>
             </fieldset>
             <fieldset>
-                <legend>Datasets</legend>
+                <legend>Datasets
+                    <i class="icon-question-sign" rel="popover"
+                       data-original-title="Uitleg"
+                       data-content="Een dataset vertegenwoordigt een verzameling objecten van een bepaald soort,
+                       bijvoorbeeld speeltoestellen, verkeersborden of civiele kunstwerken. Kies hier één tot drie
+                       datasets waarin èn waartussen je opzoek wilt naar correlaties.<br/><br/>
+                       Ieder object heeft een reeks attributen, zoals materiaal, type of status. Kies één of meerdere
+                       attributen waartussen je opzoek wilt naar correlaties.">
+                    </i>
+                </legend>
                 <!-- Data set 1 -->
                 <div class="control-group">
                     <label class="control-label" for="data-set-1">Data set 1</label>
@@ -101,7 +110,20 @@
                 <th>#</th>
                 <th>Serie 1</th>
                 <th>Serie 2</th>
-                <th class="sortable">Correlatie<span class="sort-icon"></span></th>
+                <th class="sortable">Correlatie
+                    <i class="icon-question-sign" rel="popover"
+                       data-original-title="Uitleg"
+                       data-content="De correlatie tussen twee type objecten wordt uitgedrukt in een getal tussen -1 en 1.<br />
+                        Een correlatie van 1 geeft aan dat er een sterk verband is tussen twee type objecten.
+                        Bijvoorbeeld: in de buurt van een Speeltoestel van het Type Combirek is er altijd een
+                        Speeltoestel van het Type Picknickset te vinden.<br />
+                        Een correlatie van -1 geeft aan dat er een sterk negatief verband is tussen twee type objecten.
+                        Dat wil zeggen, hoe meer objecten van het ene type in een gebied te vinden zijn, des te minder
+                        zijn er objecten te vinden van het andere type.<br />
+                        Een correlatie van 0 geeft aan dat de aanwezigheid van het ene type object geen invloed heeft op
+                        de aanwezigheid van het andere type object.">
+                    </i>
+                    <span class="sort-icon"></span></th>
             </tr>
             </thead>
             <tbody>
@@ -113,7 +135,16 @@
             <div id="data-table-controls">
                 <h2>Bewerk resultaten</h2>
                 <div id="pearson-slider-control-group" class="control-group">
-                    <label class="control-label" for="absolute-pearson-range-slider">Absolute Pearsons bereik</label>
+                    <label class="control-label" for="absolute-pearson-range-slider">
+                        <i class="icon-question-sign" rel="popover"
+                           data-original-title="Uitleg"
+                           data-content="Met deze dubbele slider kan een bereik aangegeven worden van correlaties die in
+                           de resultaten tabel getoond moeten worden. De linker knop geeft de minimum correlatie aan die
+                           getoond moet worden, de rechter knop geeft de maximum correlatie aan.<br />
+                           De slider loopt van 0 tot 1. Het bereik geldt voor zowel positieve als negatieve verbanden.
+                           Dus een bereik van 0,5 to 0,8 toont zowel verbanden van 0,6 als van -0,7.">
+                        </i>
+                        Absolute Pearsons bereik</label>
                     <div class="controls slider-container">
                         <span id="absolute-pearson-range-value-1" class="span0">0</span>
                         <div id="absolute-pearson-range-slider" class="span2"></div>
