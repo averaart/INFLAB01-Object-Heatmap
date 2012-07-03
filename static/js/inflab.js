@@ -10,10 +10,6 @@ initAnalysisPage = function(){
     initMap("map-area");
 
 
-    /**
-     * Initialize all tooltips
-     */
-    $('.icon-question-sign').popover();
 
     /**
      * Init the pearson accuracy slider.
@@ -234,11 +230,21 @@ initAnalysisPage = function(){
         .find('input').first()
             .appendTo($('#analysis-results_filter').find('.controls').first());
     $('#analysis-results_filter')
-        .find('label').first().attr('class', 'control-label');
+        .find('label').first().attr('class', 'control-label')
+        .html("<i class='icon-question-sign' rel=\"popover\" data-original-title='Uitleg' " +
+        "data-content='Dit zoekveld filtert de resultaten op de termen die hier ingevuld worden. Het is mogelijk om " +
+        "meerdere termen in te voeren door ze te scheiden met een spatie.'></i> Zoek");
 
     ////////////////////////////////////////
     // End of hack                        //
     ////////////////////////////////////////
+
+
+    /**
+     * Initialize all tooltips
+     */
+    $('.icon-question-sign').popover();
+
 };
 
 var minAbsCorr;

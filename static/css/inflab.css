@@ -70,3 +70,8 @@ width:470px;
 h2 a, h2 {
     color: #0088CC;
 }
+
+.icon-question-sign{
+    background-image: url('/static/img/glyphicons-halflings-darkblue.png');
+    margin: 0 5px;
+}
