@@ -5,11 +5,9 @@
 
 initAnalysisPage = function(){
     /**
-     * Initialize a Google maps  map
+     * Initialize a Google maps map
      */
     initMap("map-area");
-
-
 
     /**
      * Init the pearson accuracy slider.
@@ -123,6 +121,14 @@ initAnalysisPage = function(){
         }
     );
 
+
+    /**
+     * Init the grid
+     */
+    grid.init(map, $( "#zone-size-slider" ).slider('option','value'));
+
+
+
     $("#start-analysis").click(function() {
         // Clear current results in table
         $('#analysis-results').dataTable().fnClearTable();
@@ -130,9 +136,9 @@ initAnalysisPage = function(){
         $("#loading-analysis-results").css('display', 'inline');
         // Request analysis results
         $.ajax({ url: '/analyseer', type: 'POST'}).done(
-            function( data ) {
+            function( response ) {
                 $("#loading-analysis-results").css('display', 'none');
-                data = $.parseJSON(data);
+                data = $.parseJSON(response);
                 var dataToAdd = [];
                 // Push each result to data
                 $.each(data, function(key, item){
@@ -150,6 +156,7 @@ initAnalysisPage = function(){
                 $('#analysis-results').dataTable().fnAddData(dataToAdd);
 
                 // Hier iets met het opbouwen van dat raster??
+                grid.buildGrid();
             });
     });
 
@@ -251,9 +258,11 @@ var minAbsCorr;
 var maxAbsCorr;
 
 
-
-
-
+/**
+ * Keeper of all data! :P
+ * After each analysis, the result is stored here.
+ */
+var data;
 
 var map;
 function initMap(id) {
@@ -272,6 +281,93 @@ function initMap(id) {
     };
     map = new google.maps.Map(document.getElementById("map-area"), options);
 }
+
+var grid = {
+
+    tiles : new Array(), // stores all the tiles of the tiles
+    map : null,         // holds the map
+    columns: null,        // number of colums of tiles
+    rows: null,           // number of rows of tiles
+
+    /**
+     * Init this grid
+     */
+    init : function init(map, zones){
+        this.map = map;
+        this.columns = zones;
+        this.rows = zones;
+    },
+
+    /**
+     *
+     * Build a grid overlay over the map.
+     */
+    buildGrid : function buildGrid() {
+
+        var bounds = this.map.getBounds();
+
+        var x = bounds.getSouthWest().lng();
+        var y = bounds.getNorthEast().lat();
+        var xDiff = (bounds.getNorthEast().lng() - x)/this.columns;
+        var yDiff = (y - bounds.getSouthWest().lat())/this.rows;
+
+        var rectOpt = {
+            clickable: true,
+            strokeColor: "#000",
+            strokeOpacity: 1,
+            strokeWeight: 0.5,
+            fillColor: "#FF0000",
+            fillOpacity: 0.0,
+            map: this.map
+        };
+
+        for (var j = 0; j < this.rows; j++) {  // Goes vertical
+            for (var i = 0; i < this.columns; i++) { // Goes horizontal
+                // Create LatLngBounds for each tile.
+                rectOpt.bounds = new google.maps.LatLngBounds(
+                    new google.maps.LatLng(
+                        y - Number(yDiff * j),
+                        x + Number(xDiff * (i))
+                    ),
+                    new google.maps.LatLng(
+                        y - Number(yDiff * (j+1)),
+                        x + Number(xDiff * (i+1))
+                    )
+                );
+                // Make Tile, store it, and add listener to it.
+                var r = new google.maps.Rectangle(rectOpt);
+                this.tiles[j*this.columns+i] = r;
+                this.addGridTileListener(r, j*this.columns+i+1);
+            }
+        }
+    },
+
+    /**
+     * Add a listener to a tile to display information about a tile.
+     * @param t Rectangle Object
+     * @param data The data to be displayed
+     */
+    addGridTileListener : function(t, tiledata) {
+        var infowindow = new google.maps.InfoWindow({
+            content: String(tiledata),
+            position: t.bounds.getCenter()
+        });
+        google.maps.event.addListener(t, 'click', function() {
+            infowindow.open(this.map);
+        });
+    },
+
+
+    /**
+     * Removes the grid from the map.
+     */
+    removeGrid : function() {
+        for(var i = 0; i < this.tiles.length; i++){
+            this.tiles[i].setMap(null);
+        }
+        this.tiles = new Array();
+    }
+};
 
 
 /**
@@ -351,4 +447,52 @@ function hsvToRgb(h, s, v) {
     }
 
     return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+}
+
+
+function showDetails(combKey){
+    var pearson = data[combKey]["pearsons"];
+    var sub = data[combKey]["sub"];
+    var dev = data[combKey]["avg_deviation"];
+    var diff = [];
+    for (var field in sub){
+        if (sub[field] == "X"){
+            diff.push("X");
+        } else {
+            diff.push(sub[field]-pearson);
+        }
+    }
+    for (var i in diff){
+        var my_rectOpt;
+        // if diff is either X, or within standard deviation
+        if (diff[i] == "X") {
+            my_rectOpt = {
+                fillColor: "#000000",
+                fillOpacity: 0.2
+            };
+        } else {
+            if (diff[i] > dev){
+                my_rectOpt = {
+                    fillColor: "#00FF00",
+                    fillOpacity: 0.5
+                };
+            } else if (diff[i] < -dev){
+                my_rectOpt = {
+                    fillColor: "#FF0000",
+                    fillOpacity: 0.5
+                };
+            } else {
+                my_rectOpt = {
+                    fillOpacity: 0.0
+                };
+            }
+        }
+        var result = "<p>"
+        result += "Algemene correlatie: "+round(pearson, 3)+"<br>";
+        result += "Gemiddelde afwijking: +/-"+round(dev, 3)+"<br>";
+        result += "Locale correlatie: "+round(sub[i], 3)+"<br>";
+        result += "</p>";
+        grid.addGridTileListener(grid.tiles[i], result);
+        grid.tiles[i].setOptions(my_rectOpt);
+    }
 }
