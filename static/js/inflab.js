@@ -9,6 +9,12 @@ initAnalysisPage = function(){
      */
     initMap("map-area");
 
+
+    /**
+     * Initialize all tooltips
+     */
+    $('.icon-question-sign').popover();
+
     /**
      * Init the pearson accuracy slider.
      */

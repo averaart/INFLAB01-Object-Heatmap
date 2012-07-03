@@ -14,11 +14,18 @@
             <fieldset>
                 <legend>Algemeen</legend>
                 <div class="control-group">
-                    <label class="control-label" for="pearson-accuracy-slider">Pearsons nauwkeurigheid</label>
+                    <label class="control-label" for="pearson-accuracy-slider">Pearsons nauwkeurigheid
+
+                    </label>
                     <div class="controls  slider-container">
                         <div><span id="pearson-accuracy-value" class="span0">0</span></div>
                         <div id="pearson-accuracy-slider" class="span3"></div>
                     </div>
+                    <i class="icon-question-sign" rel="popover"
+                       data-original-title="Uitleg"
+                       data-content="Tijdens het berekenen van de correlatie tussen twee soorten objecten,
+                       wordt het gebied dat wordt bestudeerd opgedeeld in kleinere vlakken.">
+                    </i>
                 </div>
                 <div class="control-group">
                     <label class="control-label" for="zone-size-slider">Zone grootte</label>
@@ -26,6 +33,12 @@
                         <div><span id="zone-size-value" class="span0">0</span></div>
                         <div id="zone-size-slider" class="span3"></div>
                     </div>
+                    <i class="icon-question-sign" rel="popover"
+                       data-original-title="Uitleg"
+                       data-content="Voor iedere combinatie van objecten wordt de correlatie over het gehele gebied
+                       berekend èn binnen kleinere zones. Zo kan bekeken worden of bepaalde zones een afwijking vertonen
+                       ten opzichte van het gehele gebied. Deze slider bepaald in hoeveel zones het gebied wordt verdeeld.">
+                    </i>
                 </div>
             </fieldset>
             <fieldset>
