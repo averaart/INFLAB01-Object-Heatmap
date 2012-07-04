@@ -129,11 +129,20 @@ initAnalysisPage = function(){
     $("#toggleAnalyse").click(function() {
         $('#analyzer-settings').slideToggle('slow', function() {
             if($("#analyzer-settings").is(":visible")){
-                $("#toggleAnalyse").html("verberg");
+                $("#toggleAnalyse").html("Verberg");
             } else {
-                $("#toggleAnalyse").html("toon");
+                $("#toggleAnalyse").html("Toon");
             }
             // Animation complete.
+        });
+    });
+    $("#toggleFilter").click(function() {
+        $('#data-table-controls-container').slideToggle('slow', function() {
+            if($("#data-table-controls-container").is(":visible")){
+                $("#toggleFilter").html("Verberg");
+            } else {
+                $("#toggleFilter").html("Toon");
+            }
         });
     });
 
