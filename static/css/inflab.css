@@ -2,15 +2,7 @@
 #analysis-results {
     margin-top: 20px;
 }
-#data-table-controls-container {
-    position: relative;
-}
-#data-table-controls {
-    float: right;
-    position: fixed;
-}
 #map-area-container {
-    float:left;
     width:470px;
     height:470px;
 }
@@ -21,15 +13,13 @@
 }
 #map-area img { max-width:none; }
 #data-set-1 .span2,
-.select2-container.span2
- {
+.select2-container.span2 {
     margin-left: 0;
 }
 
 #pearson-accuracy-slider,
 #zone-size-slider,
-#absolute-pearson-range-slider
-{
+#absolute-pearson-range-slider {
     margin-top: 3px;
     margin-left: 15px;
 }
@@ -50,8 +40,8 @@
 width:470px;
 }
 .span0 { width: 30px; }
-.section { margin-bottom: 15px; }
-.section h2 { margin-bottom: 20px; }
+/*.section { margin-bottom: 15px; }*/
+h2 { margin-bottom: 20px; }
 .slider-container { padding-top: 10px; }
 .sortable {
     background-color: #f4f4f4;
@@ -82,7 +72,9 @@ h2 a, h2 {
     display: none;
 }
 
-#toggleAnalyse {
+#toggleAnalyse,
+#toggleFilter {
+    margin-top:5px;
     cursor:pointer;
     float: right;
 }
@@ -98,4 +90,8 @@ tr.highlighted {
 
 tr.highlighted td:nth-child(3){
     color: #000;
+}
+
+#analysis-results tr:hover {
+    cursor: pointer;
 }

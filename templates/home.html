@@ -9,8 +9,7 @@
 {% endif %}
 <div class="row">
     <div class="span7 section" id="analyseContainer">
-
-        <h2>Analyse</h2><span id="toggleAnalyse">verberg</span>
+        <h2>Analyse<span class="btn btn-info" id="toggleAnalyse">Verberg</span></h2>
         <form class="form-horizontal" id="analyzer-settings">
             <fieldset>
                 <legend>Algemeen</legend>
@@ -97,13 +96,38 @@
                 </div>
             </fieldset>
             <div class="control-group">
-                <input id="start-analysis" class="btn btn-primary" type="button" value="Analyseer">
+                <input id="start-analysis" class="btn btn-danger" type="button" value="Analyseer">
             </div>
         </form>
     </div>
     <div class="span5">
+        <div style="position: fixed;">
+            <h2>Filter resultaten<span  class="btn btn-info" id="toggleFilter">Verberg</span></h2>
+            <div id="data-table-controls-container" class="form-horizontal">
+            <div id="data-table-controls">
+                <div id="pearson-slider-control-group" class="control-group">
+                    <label class="control-label" for="absolute-pearson-range-slider">
+                        <i class="icon-question-sign" rel="popover"
+                           data-original-title="Uitleg"
+                           data-content="Met deze dubbele slider kan een bereik aangegeven worden van correlaties die in
+                       de resultaten tabel getoond moeten worden. De linker knop geeft de minimum correlatie aan die
+                       getoond moet worden, de rechter knop geeft de maximum correlatie aan.<br />
+                       De slider loopt van 0 tot 1. Het bereik geldt voor zowel positieve als negatieve verbanden.
+                       Dus een bereik van 0,5 to 0,8 toont zowel verbanden van 0,6 als van -0,7.">
+                        </i>
+                        Absolute Pearsons bereik</label>
+                    <div class="controls slider-container">
+                        <span id="absolute-pearson-range-value-1" class="span0">0</span>
+                        <div id="absolute-pearson-range-slider" class="span2"></div>
+                        <span id="absolute-pearson-range-value-2" class="span0">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h2>Kaart</h2>
         <div id="map-area-container">
             <div id="map-area"></div>
+        </div>
         </div>
     </div>
 </div>
@@ -137,30 +161,6 @@
             <tbody>
             </tbody>
         </table>
-    </div>
-    <div class="span5">
-        <div id="data-table-controls-container" class="form-horizontal">
-            <div id="data-table-controls">
-                <h2>Filter resultaten</h2>
-                <div id="pearson-slider-control-group" class="control-group">
-                    <label class="control-label" for="absolute-pearson-range-slider">
-                        <i class="icon-question-sign" rel="popover"
-                           data-original-title="Uitleg"
-                           data-content="Met deze dubbele slider kan een bereik aangegeven worden van correlaties die in
-                           de resultaten tabel getoond moeten worden. De linker knop geeft de minimum correlatie aan die
-                           getoond moet worden, de rechter knop geeft de maximum correlatie aan.<br />
-                           De slider loopt van 0 tot 1. Het bereik geldt voor zowel positieve als negatieve verbanden.
-                           Dus een bereik van 0,5 to 0,8 toont zowel verbanden van 0,6 als van -0,7.">
-                        </i>
-                        Absolute Pearsons bereik</label>
-                    <div class="controls slider-container">
-                        <span id="absolute-pearson-range-value-1" class="span0">0</span>
-                        <div id="absolute-pearson-range-slider" class="span2"></div>
-                        <span id="absolute-pearson-range-value-2" class="span0">0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 

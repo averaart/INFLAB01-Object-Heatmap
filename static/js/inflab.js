@@ -129,13 +129,25 @@ initAnalysisPage = function(){
     $("#toggleAnalyse").click(function() {
         $('#analyzer-settings').slideToggle('slow', function() {
             if($("#analyzer-settings").is(":visible")){
-                $("#toggleAnalyse").html("verberg");
+                $("#toggleAnalyse").html("Verberg");
             } else {
-                $("#toggleAnalyse").html("toon");
+                $("#toggleAnalyse").html("Toon");
             }
             // Animation complete.
         });
     });
+
+    $("#toggleFilter").click(function() {
+        $('#data-table-controls-container').slideToggle('slow', function() {
+            if($("#data-table-controls-container").is(":visible")){
+                $("#toggleFilter").html("Verberg");
+            } else {
+                $("#toggleFilter").html("Toon");
+            }
+            // Animation complete.
+        });
+    });
+
 
     /**
      * Initialize a Google maps map
@@ -378,7 +390,6 @@ initAnalysisPage = function(){
     );
     $('#absolute-pearson-range-slider').slider()
         .bind('slide', function(event, ui){
-            console.log('asd');
             $( "#absolute-pearson-range-value-1" ).html( ui.values[0]);
             $( "#absolute-pearson-range-value-2" ).html( ui.values[1]);
             minAbsCorr = ui.values[0];
