@@ -281,6 +281,9 @@ initAnalysisPage = function(){
         // Clear the current grid and update the grid with the most recent settings.
         grid.removeGrid();
         grid.update($( "#zone-size-slider" ).slider('option','value'));
+        // Clear the info fields
+        $("#comb-info-container").html("");
+        $("#zone-info-container").html("");
 
         // Create URL
         // We store what data sets and attributes are selected
@@ -345,7 +348,7 @@ initAnalysisPage = function(){
 
                     // Hier iets met het opbouwen van dat raster??
                     grid.buildGrid();
-                    $.scrollTo("#zone-info-container", 1000, {offset: -50});
+                    $.scrollTo("#resultaten", 1000, {offset: -50});
                 });
         } else {
             // Error message
@@ -448,6 +451,8 @@ initAnalysisPage = function(){
      * Initialize all tooltips
      */
     $('.icon-question-sign').popover();
+
+//    $('#info-container').followTo( 250 );
 
 };
 
@@ -591,7 +596,11 @@ function showDetails(combKey){
     result += "Van deze objecten zijn er "+count_b+" waarbij het attribuut \""+attribute_b+"\" de waarde \""+value_b+"\" heeft.<br>";
     result += "<br>";
     result += "Algemene correlatie tussen de twee groepen: "+round(pearson, 3)+"<br>";
-    result += "Gemiddelde afwijking van de correlatie: +/-"+round(dev, 3)+" of "+dev+"<br>";
+    if (dev!=undefined){
+        result += "Gemiddelde afwijking van de correlatie: +/-"+round(dev, 3)+"<br>";
+    } else {
+        result += "Deze combinatie komt op lokaal niveau te weinig voor om een gemiddelde afwijking te berekenen.<br>";
+    }
     result += "</p>";
     $("#comb-info-container").html(result);
     $("#zone-info-container").html("");
@@ -609,28 +618,48 @@ function showDetails(combKey){
         if (diff[i] == "X") {
             my_rectOpt = {
                 fillColor: "#000000",
-                fillOpacity: 0.2
+                fillOpacity: 0.2,
+                strokeColor: "#000",
+                strokeWeight: 0.5,
+                zIndex: 0
             };
         } else {
             if (diff[i] > dev){
                 my_rectOpt = {
                     fillColor: "#00FF00",
-                    fillOpacity: 0.5
+                    fillOpacity: 0.5,
+                    strokeColor: "#000",
+                    strokeWeight: 0.5,
+                    zIndex: 0
                 };
             } else if (diff[i] < -dev){
                 my_rectOpt = {
                     fillColor: "#FF0000",
-                    fillOpacity: 0.5
+                    fillOpacity: 0.5,
+                    strokeColor: "#000",
+                    strokeWeight: 0.5,
+                    zIndex: 0
                 };
             } else {
                 my_rectOpt = {
-                    fillOpacity: 0.0
+                    fillOpacity: 0.0,
+                    strokeColor: "#000",
+                    strokeWeight: 0.5,
+                    zIndex: 0
                 };
             }
         }
 
         grid.tiles[i].setOptions(my_rectOpt);
     }
+}
+
+var my_rectOpt;
+for (var i in grid.tiles){
+    my_rectOpt = { strokeColor: "#000",
+        strokeWeight: 0.5,
+        zIndex: 0 };
+    grid.tiles[i].setOptions(my_rectOpt);
 }
 
 function showZoneDetails(zone){
@@ -640,7 +669,7 @@ function showZoneDetails(zone){
     if (sub=="X"){
         result += "De gekozen combinatie komt in deze zone niet voor.<br>";
     } else {
-        result += "Locale correlatie: "+round(sub, 3)+" of "+sub+"<br>";
+        result += "Locale correlatie: "+round(sub, 3)+"<br>";
     }
     result += "</p>";
     $("#zone-info-container").html(result);
@@ -724,3 +753,31 @@ Object.size = function(obj) {
     }
     return size;
 };
+
+
+/**
+ * Prevents a given element from scrolling out of view
+ * margin = pixels from top to freeze the element
+ */
+
+var windw = this;
+
+$.fn.followTo = function ( margin ) {
+    var $this = this,
+        $window = $(windw);
+    pos = $this.offset().top
+
+    $window.scroll(function(e){
+        if ($window.scrollTop() <= pos-margin) {
+            $this.css({
+                position: 'relative',
+            });
+        } else {
+            $this.css({
+                position: 'fixed',
+                top: margin
+            });
+        }
+    });
+};
+
