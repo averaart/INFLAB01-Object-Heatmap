@@ -130,7 +130,7 @@ initAnalysisPage = function(){
     $( "#pearson-accuracy-slider" ).slider({
         value: pearsonAccuracy,
         min: 3,
-        max: 50,
+        max: 20,
         step: 1,
         slide: function(event, ui){
             $( "#pearson-accuracy-value" ).html( ui.value );
@@ -141,14 +141,14 @@ initAnalysisPage = function(){
      * Init the zone size slider.
      */
     var zoneValue = 7;
-    $( "#zone-size-value").html(zoneValue);
+    $( "#zone-size-value").html(zoneValue*zoneValue);
     $( "#zone-size-slider" ).slider({
         value: zoneValue,
-        min: 3,
-        max: 50,
+        min: 2,
+        max: 15,
         step: 1,
         slide: function(event, ui){
-            $( "#zone-size-value" ).html( ui.value );
+            $( "#zone-size-value" ).html( ui.value*ui.value );
         }
     });
 
@@ -259,14 +259,14 @@ initAnalysisPage = function(){
                 // Push each result to data
                 $.each(data, function(key, item){
                     dataToAdd.push([
-                        '<a class="btn" tabindex="0" role="button" onclick="showDetails(\''+key+'\')" aria-controls="details-for-'+key+'">Details</a>',
                         item["set_a"]["set"]+"<br>" +
                             item["set_a"]["attribute"]+"<br>" +
                             item["set_a"]["value"] +"<br>",
                         item["set_b"]["set"]+"<br>" +
                             item["set_b"]["attribute"]+"<br>" +
                             item["set_b"]["value"] +"<br>",
-                        parseFloat(item["pearsons"]).toFixed(3)
+                        parseFloat(item["pearsons"]).toFixed(3),
+                        key
                     ]);
                 });
                 $('#analysis-results').dataTable().fnAddData(dataToAdd);
@@ -288,22 +288,22 @@ initAnalysisPage = function(){
     $.fn.dataTableExt.oStdClasses.sPageNextEnabled = 'btn';
     $.fn.dataTableExt.oStdClasses.sPageNextDisabled = 'btn disabled';
     $('#analysis-results').dataTable({
-        'aaSorting': [[ 3, 'desc' ]],
+        'aaSorting': [[ 2, 'desc' ]],
         'bPaginate': true,
         'aoColumnDefs': [
-            { 'bSortable': false, 'aTargets': [ 0, 1, 2 ] }
+            { 'bSortable': false, 'aTargets': [ 0, 1 ] }
         ],
         "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-            console.log((Number(aData[3])+1.0)*60);
-            var rgb = hsvToRgb((Number(aData[3])+1.0)*20+40, 60, 100);
-            $('td:eq(3)', nRow).css( 'background-color', 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')');
+            var rgb = hsvToRgb((Number(aData[2])+1.0)*20+40, 60, 100);
+            $('td:eq(2)', nRow).css( 'background-color', 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')');
+//            $(this).bind('click', function(){console.log(iDisplayIndex + ' ' + iDisplayIndexFull)});
         }
     });
     $.fn.dataTableExt.afnFiltering.push(
         function( oSettings, aData, iDataIndex ) {
             var iMin = minAbsCorr;
             var iMax = maxAbsCorr;
-            var pearson = Math.abs(aData[3]);
+            var pearson = Math.abs(aData[2]);
             return ( iMin <= pearson && pearson <= iMax );
         }
     );
@@ -341,7 +341,7 @@ initAnalysisPage = function(){
         .appendTo($('#analysis-results_length').find('.controls').first())
         .select2();
     $('#analysis-results_length')
-        .find('label').first().attr('class', 'control-label');
+        .find('label').first().attr('class', 'control-label').html('Aantal resultaten per pagina');
 
 
 
