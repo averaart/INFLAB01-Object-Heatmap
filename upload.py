@@ -19,6 +19,8 @@ class DataSetUploader:
         if shp.filename and dbf.filename and data_set_name:
             if shp.filename[-4:] == '.shp' and dbf.filename[-4:] == '.dbf':
                 # strip leading path from file name to avoid directory traversal attacks
+                if os.path.exists('temp'):
+                    shutil.rmtree('temp')
                 os.mkdir('temp')
                 fnShp = os.path.basename(shp.filename)
                 open('temp/' + fnShp, 'wb').write(shp.file.read())
