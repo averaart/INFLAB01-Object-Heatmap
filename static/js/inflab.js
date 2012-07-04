@@ -18,7 +18,7 @@ var data;
  * Oh, ahem, sorry...
  *
  * This is the key of the element in "data" that is being inspected.
- * Look at the function showZoneDetails to see why.
+ * Look at the functions showDetails and showZoneDetails to see why.
  */
 var key;
 
@@ -355,7 +355,6 @@ initAnalysisPage = function(){
         "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
             var rgb = hsvToRgb((Number(aData[2])+1.0)*20+40, 60, 100);
             $('td:eq(2)', nRow).css( 'background-color', 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')');
-//            $(this).bind('click', function(){console.log(iDisplayIndex + ' ' + iDisplayIndexFull)});
             rowKey = $('#analysis-results').dataTable()._(nRow)[0][3];
             $(nRow).bind('click', function(){
                 showDetails($('#analysis-results').dataTable()._(this)[0][3]);
@@ -540,11 +539,43 @@ function showDetails(combKey){
     var pearson = data[key]["pearsons"];
     var sub = data[key]["sub"];
     var dev = data[key]["avg_deviation"];
+
+    var set_a = data[key]["set_a"]["set"];
+    var attribute_a = data[key]["set_a"]["attribute"];
+    var value_a = data[key]["set_a"]["value"];
+    var total_a = data[key]["set_a"]["amount-total"];
+    var count_a = data[key]["set_a"]["amount-value"];
+
+    var set_b = data[key]["set_b"]["set"];
+    var attribute_b = data[key]["set_b"]["attribute"];
+    var value_b = data[key]["set_b"]["value"];
+    var total_b = data[key]["set_b"]["amount-total"];
+    var count_b = data[key]["set_b"]["amount-value"];
+
     var diff = [];
 
+    var verb = "zijn";
+    if (count_a == 1) verb = "is";
+
     var result = "<p>";
-    result += "Algemene correlatie: "+round(pearson, 3)+"<br>";
-    result += "Gemiddelde afwijking: +/-"+round(dev, 3)+"<br>";
+
+    result += "Groep 1:<br>";
+    result += "In dit gebied bevinden zich "+total_a+" objecten uit de dataset "+set_a+"<br>";
+    result += "Van deze objecten "+verb+" er "+count_a+" waarbij het attribuut \""+attribute_a+"\" de waarde \""+value_a+"\" heeft.<br>";
+    result += "<br>";
+
+    if (count_b == 1) {
+        verb = "is"
+    } else {
+        verb = "zijn";
+    }
+
+    result += "Groep 2:<br>";
+    result += "In dit gebied bevinden zich "+total_b+" objecten uit de dataset "+set_b+"<br>";
+    result += "Van deze objecten zijn er "+count_b+" waarbij het attribuut \""+attribute_b+"\" de waarde \""+value_b+"\" heeft.<br>";
+    result += "<br>";
+    result += "Algemene correlatie tussen de twee groepen: "+round(pearson, 3)+"<br>";
+    result += "Gemiddelde afwijking van de correlatie: +/-"+round(dev, 3)+"<br>";
     result += "</p>";
     $("#comb-info-container").html(result);
     $("#zone-info-container").html("");
