@@ -30,8 +30,14 @@ class DataSetUploader:
 
                 connection = Connection()
                 db = connection.opendata
+
+                # Remove existing collection
+                my_collection = db[data_set_name]
+                my_collection.drop()
+
                 my_collection = db[data_set_name]
                 my_collection.ensure_index([("location", GEO2D)])
+
                 att_collection = db.attributes
 
                 try:
@@ -67,6 +73,9 @@ class DataSetUploader:
                     my_collection.drop()
                     success = False
                     message = "Er is een fout opgetreden bij het uploaden van de dataset."
+                finally:
+                    connection.close()
+#                message = 'De dataset \'' + data_set_name + '\' is succesvol opgeslagen in de database.'
                 shutil.rmtree('temp')
             else:
                 message = 'Het type bestand van de een of twee van de bestanden (.shp en .dbf) is niet correct. ' \
