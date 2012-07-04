@@ -181,31 +181,32 @@ initAnalysisPage = function(){
                     placeholder: "Kies een dataset",
                     allowClear: true
                 }).bind('change', function(){
-                        if ($(this).val()){
-                            var id = $(this).attr('id').split('-')[2];
-                            $.post('/attributen', { set: $(this).val() }).done(
-                                function( attributesData ){
-                                    var attributes = eval( attributesData );
-                                    if (attributes != undefined ){
-                                        var select = $('#attributes-data-set-' + id);
-                                        $(select).select2('enable')
-                                            .empty()
-                                            .append($('<option>'))
-                                            .select2('val', {id: null, text: null});
-                                        for (var i = 0; i < attributes.length; i++) {
-                                            $(select).append($('<option>').val(attributes[i]).text(attributes[i]));
-                                        }
+                    if ($(this).val()){
+                        var id = $(this).attr('id').split('-')[2];
+                        $.post('/attributen', { set: $(this).val() }).done(
+                            function( attributesData ){
+                                var attributes = eval( attributesData );
+                                if (attributes != undefined ){
+                                    var select = $('#attributes-data-set-' + id);
+                                    $(select).select2('enable')
+                                        .empty()
+                                        .append($('<option>'))
+                                        .select2('val', {id: null, text: null});
+                                    for (var i = 0; i < attributes.length; i++) {
+                                        $(select).append($('<option>').val(attributes[i]).text(attributes[i]));
                                     }
                                 }
-                            );
-                        } else {
-                            $('#attributes-data-set-' + $(this).attr('id').split('-')[2])
-                                .empty()
-                                .append($('<option>'))
-                                .select2('val', {id: null, text: null})
-                                .select2('disable');
-                        }
-                    });
+                            }
+                        );
+                    } else {
+                        $('#attributes-data-set-' + $(this).attr('id').split('-')[2])
+                            .empty()
+                            .append($('<option>'))
+                            .select2('val', {id: null, text: null})
+                            .select2('disable');
+                    }
+                });
+
                 /**
                  * Add the options (collections) to the data set selectors.
                  */
@@ -248,33 +249,75 @@ initAnalysisPage = function(){
         // Clear the current grid and update the grid with the most recent settings.
         grid.removeGrid();
         grid.update($( "#zone-size-slider" ).slider('option','value'));
-        // Show loading image
-        $("#loading-analysis-results").css('display', 'inline');
-        // Request analysis results
-        $.ajax({ url: '/analyseer', type: 'POST'}).done(
-            function( response ) {
-                $("#loading-analysis-results").css('display', 'none');
-                data = $.parseJSON(response);
-                var dataToAdd = [];
-                // Push each result to data
-                $.each(data, function(key, item){
-                    dataToAdd.push([
-                        item["set_a"]["set"]+"<br>" +
-                            item["set_a"]["attribute"]+"<br>" +
-                            item["set_a"]["value"] +"<br>",
-                        item["set_b"]["set"]+"<br>" +
-                            item["set_b"]["attribute"]+"<br>" +
-                            item["set_b"]["value"] +"<br>",
-                        parseFloat(item["pearsons"]).toFixed(3),
-                        key
-                    ]);
-                });
-                $('#analysis-results').dataTable().fnAddData(dataToAdd);
 
-                // Hier iets met het opbouwen van dat raster??
-                grid.buildGrid();
-                $.scrollTo("#zone-info-container", 1000, {offset: -50});
-            });
+        // Create URL
+        // We store what data sets and attributes are selected
+        var dataSets = {};
+        var attributes = []; // Stores arrays with attributes
+
+        // Check each data set select-field.
+        $('select.data-set-selector').each(function(i, v){
+            if(this.value && !dataSets[this.value]) {
+                var _attributes = []; // Temporarily store attributes for a single data set
+                var selector = "#attributes-" + this.id + ' option:selected';
+                $(selector).each(function(j, option) {
+                    // Store each selected attribute if not in temp array
+                    var oV = option.value;
+                    if(oV && $.inArray(oV, _attributes) == -1) {
+                        _attributes.push(oV);
+                    }
+                });
+
+                if (_attributes.length > 0){
+                    dataSets[this.value] = _attributes;
+                    attributes.push(_attributes);
+                }
+            }
+        });
+
+        // Go on if a valid selection was made
+        if(Object.size(dataSets) > 0) {
+            var post_data = {
+                bounds: "" + map.getBounds(),
+                sets: $.stringify(dataSets),
+                zones: "" + Math.sqrt($("#zone-size-value").html()),
+                rasterSize: "" + $("#pearson-accuracy-value").html()
+            };
+
+            // Show loading image
+            $("#loading-analysis-results").css('display', 'inline');
+            // Request analysis results
+            $.ajax({
+                url: '/analyseer',
+                type: 'POST',
+                data: post_data
+            }).done(
+                function( response ) {
+                    $("#loading-analysis-results").css('display', 'none');
+                    data = $.parseJSON(response);
+                    var dataToAdd = [];
+                    // Push each result to data
+                    $.each(data, function(key, item){
+                        dataToAdd.push([
+                            item["set_a"]["set"]+"<br>" +
+                                item["set_a"]["attribute"]+"<br>" +
+                                item["set_a"]["value"] +"<br>",
+                            item["set_b"]["set"]+"<br>" +
+                                item["set_b"]["attribute"]+"<br>" +
+                                item["set_b"]["value"] +"<br>",
+                            parseFloat(item["pearsons"]).toFixed(3),
+                            key
+                        ]);
+                    });
+                    $('#analysis-results').dataTable().fnAddData(dataToAdd);
+
+                    // Hier iets met het opbouwen van dat raster??
+                    grid.buildGrid();
+                    $.scrollTo("#zone-info-container", 1000, {offset: -50});
+                });
+        } else {
+            // Error message
+        }
     });
 
 
@@ -535,17 +578,76 @@ function showZoneDetails(zone){
     result += "</p>";
     $("#zone-info-container").html(result);
 
-
     console.log(zone);
     var my_rectOpt;
     for (var i in grid.tiles){
         my_rectOpt = { strokeColor: "#000",
-                       strokeWeight: 0.5,
-                        zIndex: 0 };
+            strokeWeight: 0.5,
+            zIndex: 0 };
         grid.tiles[i].setOptions(my_rectOpt);
     }
     my_rectOpt = { strokeColor: "#08C",
-                   strokeWeight: 1,
-                   zIndex: 1000 };
+        strokeWeight: 1,
+        zIndex: 1000 };
     grid.tiles[zone].setOptions(my_rectOpt);
 }
+
+/**
+ * converted stringify() to jQuery plugin.
+ * serializes a simple object to a JSON formatted string.
+ * Note: stringify() is different from jQuery.serialize() which URLEncodes form elements
+
+ * UPDATES:
+ *      Added a fix to skip over Object.prototype members added by the prototype.js library
+ * USAGE:
+ *  jQuery.ajax({
+ *	    data : {serialized_object : jQuery.stringify (JSON_Object)},
+ *		success : function (data) {
+ *
+ *		}
+ *   });
+ *
+ * CREDITS: http://blogs.sitepointstatic.com/examples/tech/json-serialization/json-serialization.js
+ */
+jQuery.extend({
+    stringify  : function stringify(obj) {
+        if ("JSON" in window) {
+            return JSON.stringify(obj);
+        }
+
+        var t = typeof (obj);
+        if (t != "object" || obj === null) {
+            // simple data type
+            if (t == "string") obj = '"' + obj + '"';
+
+            return String(obj);
+        } else {
+            // recurse array or object
+            var n, v, json = [], arr = (obj && obj.constructor == Array);
+
+            for (n in obj) {
+                v = obj[n];
+                t = typeof(v);
+                if (obj.hasOwnProperty(n)) {
+                    if (t == "string") {
+                        v = '"' + v + '"';
+                    } else if (t == "object" && v !== null){
+                        v = jQuery.stringify(v);
+                    }
+
+                    json.push((arr ? "" : '"' + n + '":') + String(v));
+                }
+            }
+
+            return (arr ? "[" : "{") + String(json) + (arr ? "]" : "}");
+        }
+    }
+});
+
+Object.size = function(obj) {
+    var size = 0, key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) size++;
+    }
+    return size;
+};
