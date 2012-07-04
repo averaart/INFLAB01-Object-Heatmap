@@ -78,3 +78,6 @@ h2 a, h2 {
     background-image: url('/static/img/glyphicons-halflings-darkblue.png');
     margin: 0 5px;
 }
+.help-block-data-set-name {
+    display: none;
+}

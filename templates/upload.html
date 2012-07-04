@@ -1,49 +1,81 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div>
-    {% if success is defined %}
-    {% if success %}
-    <div class="alert alert-success fade in">
-        <button class="close" data-dismiss="alert">×</button>
-        <h4 class="alert-heading">Dataset toegevoegd</h4>
-        <p>{{ message }}</p>
+<div class="row">
+    <div class="span7">
+        {% if success is defined %}
+        {% if success %}
+        <div class="alert alert-success fade in">
+            <button class="close" data-dismiss="alert">×</button>
+            <h4 class="alert-heading">Dataset toegevoegd</h4>
+            <p>{{ message }}</p>
+        </div>
+        {% else %}
+        <div class="alert alert-error fade in">
+            <button class="close" data-dismiss="alert">×</button>
+            <h4 class="alert-heading">Dataset toevoegen mislukt</h4>
+            <p>{{ message }}</p>
+        </div>
+        {% endif %}
+        {% endif %}
+        <form class="form-horizontal" enctype="multipart/form-data" action="/voeg-dataset-toe" method="post" id="form-data-set-upload">
+            <fieldset>
+                <legend>Voeg een dataset toe</legend>
+                <div class="control-group">
+                    <label class="control-label" for="data-set-name">Naam dataset</label>
+                    <div class="controls">
+                        <input type="text" class="input-xlarge" id="data-set-name" name="data-set-name">
+                        <p class="help-block help-block-data-set-name">
+                            Er is al een dataset aanwezig in de database met deze naam. De dataset die al aanwezig
+                            is zal overschreven worden als de naam van de te uploaden dataset niet wordt gewijzigd.
+                        </p>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="shp-file">.shp bestand</label>
+                    <div class="controls">
+                        <input type="file" class="input-file" id="shp-file" name="shp-file">
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="dbf-file">.dbf bestand</label>
+                    <div class="controls">
+                        <input type="file" class="input-file" id="dbf-file" name="dbf-file">
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <input class="btn btn-primary" type="submit" value="Upload dataset">
+                    </div>
+                </div>
+            </fieldset>
+        </form>
     </div>
-    {% else %}
-    <div class="alert alert-error fade in">
-        <button class="close" data-dismiss="alert">×</button>
-        <h4 class="alert-heading">Dataset toevoegen mislukt</h4>
-        <p>{{ message }}</p>
-    </div>
-    {% endif %}
-    {% endif %}
-    <form class="form-horizontal" enctype="multipart/form-data" action="/voeg-dataset-toe" method="post" id="form-data-set-upload">
-        <fieldset>
-            <legend>Voeg een dataset toe</legend>
-            <div class="control-group">
-                <label class="control-label" for="data-set-name">Naam dataset</label>
-                <div class="controls">
-                    <input type="text" class="input-xlarge" id="data-set-name" name="data-set-name">
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="shp-file">.shp bestand</label>
-                <div class="controls">
-                    <input type="file" class="input-file" id="shp-file" name="shp-file">
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="dbf-file">.dbf bestand</label>
-                <div class="controls">
-                    <input type="file" class="input-file" id="dbf-file" name="dbf-file">
-                </div>
-            </div>
-            <div class="control-group">
-                <div class="controls">
-                    <input class="btn btn-primary" type="submit" value="Upload dataset">
-                </div>
-            </div>
-        </fieldset>
-    </form>
 </div>
 {% endblock %}
+
+{% block js %}
+{{ super() }}
+<script type="text/javascript">
+    $(window).ready(function(){
+        var collections = [];
+        $.  ajax({ url: "/collecties", type: 'POST' }).done(
+            function ( data ) {
+                collections = eval(data);
+            }
+        );
+
+        $('#data-set-name').bind('keyup', function() {
+            if($.inArray(this.value, collections) != -1) {
+                $(this).parent().parent().addClass('warning');
+                $('.help-block-data-set-name').css('display', 'block');
+            } else {
+                $(this).parent().parent().removeClass('warning');
+                $('.help-block-data-set-name').css('display', 'none');
+            }
+        });
+    })
+</script>
+{% endblock %}
+
+
