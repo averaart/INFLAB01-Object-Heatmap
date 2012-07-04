@@ -297,6 +297,8 @@ initAnalysisPage = function(){
             var rgb = hsvToRgb((Number(aData[2])+1.0)*20+40, 60, 100);
             $('td:eq(2)', nRow).css( 'background-color', 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')');
 //            $(this).bind('click', function(){console.log(iDisplayIndex + ' ' + iDisplayIndexFull)});
+            rowKey = $('#analysis-results').dataTable()._(nRow)[0][3];
+            $(nRow).bind('click', function(){showDetails($('#analysis-results').dataTable()._(this)[0][3])});
         }
     });
     $.fn.dataTableExt.afnFiltering.push(
@@ -524,7 +526,23 @@ function showZoneDetails(zone){
     var result = "<p>";
     result += "Algemene correlatie: "+round(pearson, 3)+"<br>";
     result += "Gemiddelde afwijking: +/-"+round(dev, 3)+"<br>";
-    result += "Locale correlatie: "+round(sub[zone], 3)+"<br>";
+    if (sub[zone]=="X"){
+        result += "De gekozen combinatie komt in deze zone niet voor.<br>";
+    } else {
+        result += "Locale correlatie: "+round(sub[zone], 3)+"<br>";
+    }
     result += "</p>";
     $("#zone-info-container").html(result);
+
+
+    console.log(zone);
+    var my_rectOpt;
+    for (var i in grid.tiles){
+        my_rectOpt = { strokeColor: "#000",
+                       strokeWeight: 0.5};
+        grid.tiles[i].setOptions(my_rectOpt);
+    }
+    my_rectOpt = { strokeColor: "#F00",
+                   strokeWeight: 1};
+    grid.tiles[zone].setOptions(my_rectOpt);
 }
