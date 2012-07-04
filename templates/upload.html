@@ -2,18 +2,20 @@
 
 {% block content %}
 <div>
+    {% if success is defined %}
     {% if success %}
     <div class="alert alert-success fade in">
         <button class="close" data-dismiss="alert">×</button>
-        <h4 class="alert-heading">Toevoegen dataset geslaagd.</h4>
+        <h4 class="alert-heading">Dataset toegevoegd</h4>
         <p>{{ message }}</p>
     </div>
     {% else %}
     <div class="alert alert-error fade in">
         <button class="close" data-dismiss="alert">×</button>
-        <h4 class="alert-heading">Toevoegen dataset mislukt.</h4>
-        <p>{{ message }}Deze melding moet nog dynamisch worden.</p>
+        <h4 class="alert-heading">Dataset toevoegen mislukt</h4>
+        <p>{{ message }}</p>
     </div>
+    {% endif %}
     {% endif %}
     <form class="form-horizontal" enctype="multipart/form-data" action="/voeg-dataset-toe" method="post" id="form-data-set-upload">
         <fieldset>

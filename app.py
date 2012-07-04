@@ -16,9 +16,9 @@ def main():
 def new_data_set():
     if request.method == 'POST':
         dsu = DataSetUploader()
-        dsu.upload()
+        results = dsu.upload()
         # ToDo: add dynamic notification
-        return render_template('upload.html', success=True)
+        return render_template('upload.html', success=results[0], message=results[1])
     else:
         return render_template('upload.html')
 
