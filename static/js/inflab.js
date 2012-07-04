@@ -70,7 +70,7 @@ var grid = {
         var rectOpt = {
             clickable: true,
             strokeColor: "#000",
-            strokeOpacity: 1,
+            strokeOpacity: 1.0,
             strokeWeight: 0.5,
             fillColor: "#FF0000",
             fillOpacity: 0.0,
@@ -117,6 +117,11 @@ var grid = {
 
 
 initAnalysisPage = function(){
+
+    /**
+     * Initiate help-modal
+     */
+//    $('#help').modal();
 
     /**
      * Set toggle buttons
@@ -575,7 +580,7 @@ function showDetails(combKey){
     result += "Van deze objecten zijn er "+count_b+" waarbij het attribuut \""+attribute_b+"\" de waarde \""+value_b+"\" heeft.<br>";
     result += "<br>";
     result += "Algemene correlatie tussen de twee groepen: "+round(pearson, 3)+"<br>";
-    result += "Gemiddelde afwijking van de correlatie: +/-"+round(dev, 3)+"<br>";
+    result += "Gemiddelde afwijking van de correlatie: +/-"+round(dev, 3)+" of "+dev+"<br>";
     result += "</p>";
     $("#comb-info-container").html(result);
     $("#zone-info-container").html("");
@@ -617,12 +622,6 @@ function showDetails(combKey){
     }
 }
 
-function round(num, dec) {
-    var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec);
-    return result;
-}
-
-
 function showZoneDetails(zone){
 
     var sub = data[key]["sub"][zone];
@@ -630,7 +629,7 @@ function showZoneDetails(zone){
     if (sub=="X"){
         result += "De gekozen combinatie komt in deze zone niet voor.<br>";
     } else {
-        result += "Locale correlatie: "+round(sub, 3)+"<br>";
+        result += "Locale correlatie: "+round(sub, 3)+" of "+sub+"<br>";
     }
     result += "</p>";
     $("#zone-info-container").html(result);
@@ -644,10 +643,16 @@ function showZoneDetails(zone){
         grid.tiles[i].setOptions(my_rectOpt);
     }
     my_rectOpt = { strokeColor: "#08C",
-        strokeWeight: 1,
+        strokeWeight: 3.0,
         zIndex: 1000 };
     grid.tiles[zone].setOptions(my_rectOpt);
 }
+
+
+function round(num, dec) {
+    return Math.round(num*Math.pow(10,dec))/Math.pow(10,dec);
+}
+
 
 /**
  * converted stringify() to jQuery plugin.

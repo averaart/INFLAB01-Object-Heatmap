@@ -39,6 +39,7 @@
                 <ul class="nav">
                     <li><a href="/">Home</a></li>
                     <li><a href="/voeg-dataset-toe">Voeg een dataset toe</a></li>
+                    <li><a data-toggle="modal" href="#help" >Help! Wat is dit?</a></li>
                 </ul>
             </div><!--/.nav-collapse -->
         </div>
@@ -48,6 +49,25 @@
 <div class="container">
     {% block content %}{% endblock %}
 </div> <!-- /container -->
+
+
+<div class="modal hide fade" id="help">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">×</button>
+        <h3>Help! Wat is dit?</h3>
+    </div>
+    <div class="modal-body">
+        <p>Met deze web-applicatie is het mogelijk om verbanden te zoeken tussen verschillende soorten objecten, op basis 
+            van hun locatie. Is er in de buurt van een houten speeltoestel altijd een schommel te vinden? Zijn er in de
+            buurt van houten bruggen altijd een bepaald soort bomen te vinden?</p>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal">Close</a>
+    </div>
+</div>
+
+
+
 
 <!-- Le javascript
 ================================================== -->
@@ -59,6 +79,7 @@
 <script src="/static/js/bootstrap-tooltip.js"></script>
 <script src="/static/js/bootstrap-popover.js"></script>
 <script src="/static/js/bootstrap-alert.js"></script>
+<script src="/static/js/bootstrap-modal.js"></script>
 <script src="/static/js/bootstrap-transition.js"></script>
 {% endblock %}
 
