@@ -539,10 +539,12 @@ function showZoneDetails(zone){
     var my_rectOpt;
     for (var i in grid.tiles){
         my_rectOpt = { strokeColor: "#000",
-                       strokeWeight: 0.5};
+                       strokeWeight: 0.5,
+                        zIndex: 0 };
         grid.tiles[i].setOptions(my_rectOpt);
     }
-    my_rectOpt = { strokeColor: "#F00",
-                   strokeWeight: 1};
+    my_rectOpt = { strokeColor: "#08C",
+                   strokeWeight: 1,
+                   zIndex: 1000 };
     grid.tiles[zone].setOptions(my_rectOpt);
 }
