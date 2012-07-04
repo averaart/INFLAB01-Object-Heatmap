@@ -313,6 +313,7 @@ initAnalysisPage = function(){
 
                     // Hier iets met het opbouwen van dat raster??
                     grid.buildGrid();
+                    $.scrollTo("#zone-info-container", 1000, {offset: -50});
                 });
         } else {
             // Error message
