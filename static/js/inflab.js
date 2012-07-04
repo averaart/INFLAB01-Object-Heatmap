@@ -452,7 +452,7 @@ initAnalysisPage = function(){
      */
     $('.icon-question-sign').popover();
 
-//    $('#info-container').followTo( 250 );
+    $('#info-container').followTo( 60 );
 
 };
 
@@ -768,9 +768,11 @@ $.fn.followTo = function ( margin ) {
     pos = $this.offset().top
 
     $window.scroll(function(e){
+        console.log($window.scrollTop());
         if ($window.scrollTop() <= pos-margin) {
             $this.css({
                 position: 'relative',
+                top: 0
             });
         } else {
             $this.css({
