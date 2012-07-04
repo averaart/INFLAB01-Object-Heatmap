@@ -129,25 +129,13 @@ initAnalysisPage = function(){
     $("#toggleAnalyse").click(function() {
         $('#analyzer-settings').slideToggle('slow', function() {
             if($("#analyzer-settings").is(":visible")){
-                $("#toggleAnalyse").html("Verberg");
+                $("#toggleAnalyse").html("verberg");
             } else {
-                $("#toggleAnalyse").html("Toon");
+                $("#toggleAnalyse").html("toon");
             }
             // Animation complete.
         });
     });
-
-    $("#toggleFilter").click(function() {
-        $('#data-table-controls-container').slideToggle('slow', function() {
-            if($("#data-table-controls-container").is(":visible")){
-                $("#toggleFilter").html("Verberg");
-            } else {
-                $("#toggleFilter").html("Toon");
-            }
-            // Animation complete.
-        });
-    });
-
 
     /**
      * Initialize a Google maps map
@@ -393,6 +381,7 @@ initAnalysisPage = function(){
     );
     $('#absolute-pearson-range-slider').slider()
         .bind('slide', function(event, ui){
+            console.log('asd');
             $( "#absolute-pearson-range-value-1" ).html( ui.values[0]);
             $( "#absolute-pearson-range-value-2" ).html( ui.values[1]);
             minAbsCorr = ui.values[0];
@@ -624,29 +613,56 @@ function showDetails(combKey){
                 zIndex: 0
             };
         } else {
-            if (diff[i] > dev){
-                my_rectOpt = {
-                    fillColor: "#00FF00",
-                    fillOpacity: 0.5,
-                    strokeColor: "#000",
-                    strokeWeight: 0.5,
-                    zIndex: 0
-                };
-            } else if (diff[i] < -dev){
-                my_rectOpt = {
-                    fillColor: "#FF0000",
-                    fillOpacity: 0.5,
-                    strokeColor: "#000",
-                    strokeWeight: 0.5,
-                    zIndex: 0
-                };
+            if (pearson >= 0){
+                if (diff[i] > dev){
+                    my_rectOpt = {
+                        fillColor: "#00FF00",
+                        fillOpacity: 0.5,
+                        strokeColor: "#000",
+                        strokeWeight: 0.5,
+                        zIndex: 0
+                    };
+                } else if (diff[i] < -dev){
+                    my_rectOpt = {
+                        fillColor: "#FF0000",
+                        fillOpacity: 0.5,
+                        strokeColor: "#000",
+                        strokeWeight: 0.5,
+                        zIndex: 0
+                    };
+                } else {
+                    my_rectOpt = {
+                        fillOpacity: 0.0,
+                        strokeColor: "#000",
+                        strokeWeight: 0.5,
+                        zIndex: 0
+                    };
+                }
             } else {
-                my_rectOpt = {
-                    fillOpacity: 0.0,
-                    strokeColor: "#000",
-                    strokeWeight: 0.5,
-                    zIndex: 0
-                };
+                if (diff[i] < -dev){
+                    my_rectOpt = {
+                        fillColor: "#00FF00",
+                        fillOpacity: 0.5,
+                        strokeColor: "#000",
+                        strokeWeight: 0.5,
+                        zIndex: 0
+                    };
+                } else if (diff[i] > dev){
+                    my_rectOpt = {
+                        fillColor: "#FF0000",
+                        fillOpacity: 0.5,
+                        strokeColor: "#000",
+                        strokeWeight: 0.5,
+                        zIndex: 0
+                    };
+                } else {
+                    my_rectOpt = {
+                        fillOpacity: 0.0,
+                        strokeColor: "#000",
+                        strokeWeight: 0.5,
+                        zIndex: 0
+                    };
+                }
             }
         }
 
