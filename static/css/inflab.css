@@ -81,3 +81,21 @@ h2 a, h2 {
 .help-block-data-set-name {
     display: none;
 }
+
+#toggleAnalyse {
+    cursor:pointer;
+    float: right;
+}
+
+tr.highlighted {
+    background-color: #08C;
+    color: #fff;
+}
+
+.table tbody tr.highlighted:hover td {
+    background-color: transparent;
+}
+
+tr.highlighted td:nth-child(3){
+    color: #000;
+}

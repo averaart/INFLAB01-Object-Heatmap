@@ -117,6 +117,21 @@ var grid = {
 
 
 initAnalysisPage = function(){
+
+    /**
+     * Set toggle buttons
+     */
+    $("#toggleAnalyse").click(function() {
+        $('#analyzer-settings').slideToggle('slow', function() {
+            if($("#analyzer-settings").is(":visible")){
+                $("#toggleAnalyse").html("verberg");
+            } else {
+                $("#toggleAnalyse").html("toon");
+            }
+            // Animation complete.
+        });
+    });
+
     /**
      * Initialize a Google maps map
      */
@@ -342,7 +357,11 @@ initAnalysisPage = function(){
             $('td:eq(2)', nRow).css( 'background-color', 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')');
 //            $(this).bind('click', function(){console.log(iDisplayIndex + ' ' + iDisplayIndexFull)});
             rowKey = $('#analysis-results').dataTable()._(nRow)[0][3];
-            $(nRow).bind('click', function(){showDetails($('#analysis-results').dataTable()._(this)[0][3])});
+            $(nRow).bind('click', function(){
+                showDetails($('#analysis-results').dataTable()._(this)[0][3]);
+                $('#analysis-results tr').removeClass('highlighted');
+                $(this).addClass('highlighted');
+            });
         }
     });
     $.fn.dataTableExt.afnFiltering.push(
@@ -362,6 +381,7 @@ initAnalysisPage = function(){
             maxAbsCorr = ui.values[1];
             $('#analysis-results').dataTable().fnDraw(true);
         });
+
 
     ////////////////////////////////////////
     // Hack the result table controls to  //
@@ -421,6 +441,7 @@ function initMap(id) {
     var myLatlng = new google.maps.LatLng(51.9209866008, 4.47188401315);
     var options = {
         zoom: 15,
+        minZoom: 10,
         center: myLatlng,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         disableDefaultUI: false,
@@ -516,10 +537,18 @@ function hsvToRgb(h, s, v) {
 
 function showDetails(combKey){
     key = combKey
-    var pearson = data[combKey]["pearsons"];
-    var sub = data[combKey]["sub"];
-    var dev = data[combKey]["avg_deviation"];
+    var pearson = data[key]["pearsons"];
+    var sub = data[key]["sub"];
+    var dev = data[key]["avg_deviation"];
     var diff = [];
+
+    var result = "<p>";
+    result += "Algemene correlatie: "+round(pearson, 3)+"<br>";
+    result += "Gemiddelde afwijking: +/-"+round(dev, 3)+"<br>";
+    result += "</p>";
+    $("#comb-info-container").html(result);
+    $("#zone-info-container").html("");
+
     for (var field in sub){
         if (sub[field] == "X"){
             diff.push("X");
@@ -562,18 +591,15 @@ function round(num, dec) {
     return result;
 }
 
-function showZoneDetails(zone){
-    var pearson = data[key]["pearsons"];
-    var sub = data[key]["sub"];
-    var dev = data[key]["avg_deviation"];
 
+function showZoneDetails(zone){
+
+    var sub = data[key]["sub"][zone];
     var result = "<p>";
-    result += "Algemene correlatie: "+round(pearson, 3)+"<br>";
-    result += "Gemiddelde afwijking: +/-"+round(dev, 3)+"<br>";
-    if (sub[zone]=="X"){
+    if (sub=="X"){
         result += "De gekozen combinatie komt in deze zone niet voor.<br>";
     } else {
-        result += "Locale correlatie: "+round(sub[zone], 3)+"<br>";
+        result += "Locale correlatie: "+round(sub, 3)+"<br>";
     }
     result += "</p>";
     $("#zone-info-container").html(result);

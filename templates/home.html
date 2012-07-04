@@ -8,8 +8,8 @@
 </div>
 {% endif %}
 <div class="row">
-    <div class="span7 section">
-        <h2>Analyse</h2>
+    <div class="span7 section" id="analyseContainer">
+        <h2>Analyse</h2><span id="toggleAnalyse">verberg</span>
         <form class="form-horizontal" id="analyzer-settings">
             <fieldset>
                 <legend>Algemeen</legend>
@@ -108,9 +108,9 @@
 </div>
 <div class="row">
     <div class="span7 section">
-        <div id="zone-info-container"></div>
         <h2>Resultaten</h2>
-        <p>Klik op een rij in de tabel om meer informatie over de combinatie te zien.</p>
+        <div id="comb-info-container">Klik op een rij in de tabel om meer informatie over de combinatie te zien.</div>
+        <div id="zone-info-container"></div>
         <div id="loading-analysis-results" ><img class="loading" src="/static/img/spinner.gif" alt="loading"></div>
         <table class="table table-bordered" id="analysis-results">
             <thead>
