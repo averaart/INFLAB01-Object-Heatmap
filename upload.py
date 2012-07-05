@@ -6,7 +6,7 @@ from flask import request
 from pymongo.connection import Connection
 from pymongo import GEO2D
 import shpUtils
-
+import logging
 
 class DataSetUploader:
 
@@ -23,10 +23,12 @@ class DataSetUploader:
                     shutil.rmtree('temp')
                 os.mkdir('temp')
                 fnShp = os.path.basename(shp.filename)
-                open('temp/' + fnShp, 'wb').write(shp.file.read())
+#                open('temp/' + fnShp, 'wb').write(shp.file.read())
+                shp.save(os.path.join('temp', fnShp))
 
                 fnDbf = os.path.basename(dbf.filename)
-                open('temp/' + fnDbf, 'wb').write(dbf.file.read())
+#                open('temp/' + fnDbf, 'wb').write(dbf.file.read())
+                dbf.save(os.path.join('temp', fnDbf))
 
                 connection = Connection()
                 db = connection.opendata
@@ -34,6 +36,8 @@ class DataSetUploader:
                 # Remove existing collection
                 my_collection = db[data_set_name]
                 my_collection.drop()
+
+                db["attributes"].remove({'_id': data_set_name})
 
                 my_collection = db[data_set_name]
                 my_collection.ensure_index([("location", GEO2D)])
@@ -74,9 +78,9 @@ class DataSetUploader:
                     success = False
                     message = "Er is een fout opgetreden bij het uploaden van de dataset."
                 finally:
-                    connection.close()
+#                    connection.close()
 #                message = 'De dataset \'' + data_set_name + '\' is succesvol opgeslagen in de database.'
-                shutil.rmtree('temp')
+                 shutil.rmtree('temp')
             else:
                 message = 'Het type bestand van de een of twee van de bestanden (.shp en .dbf) is niet correct. ' \
                           'Controleer of de bestanden deze typen hebben en probeer het uploaden opnieuw'
