@@ -95,3 +95,14 @@ tr.highlighted td:nth-child(3){
 #analysis-results tr:hover {
     cursor: pointer;
 }
+
+#resultaten h2{
+    margin-bottom: 0;
+}
+
+#info-container {
+    background-color: #FFF;
+    padding-top: 15px;
+    width: 670px;
+    border-bottom: none 1px #DDD;
+}

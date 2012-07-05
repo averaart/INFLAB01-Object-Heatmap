@@ -450,7 +450,7 @@ initAnalysisPage = function(){
      */
     $('.icon-question-sign').popover();
 
-    $('#info-container').followTo( 60 );
+    $('#info-container').delay(5500).followTo( 40 );
 
 };
 
@@ -790,20 +790,28 @@ var windw = this;
 $.fn.followTo = function ( margin ) {
     var $this = this,
         $window = $(windw);
-    pos = $this.offset().top
+    var pos = $this.offset().top;
+    console.log($this.offset().top +" - "+$window.scrollTop());
+    var h;
 
     $window.scroll(function(e){
-        console.log($window.scrollTop());
+        h = $this.height();
+        if (pos==undefined || pos>700) pos = $this.offset().top;
+        console.log($this.offset().top +" - "+$window.scrollTop());
         if ($window.scrollTop() <= pos-margin) {
             $this.css({
                 position: 'relative',
-                top: 0
+                top: 0,
+                borderBottomStyle: 'none'
             });
+            $("#meaningless-padding").height( 0 );
         } else {
             $this.css({
                 position: 'fixed',
-                top: margin
+                top: margin,
+                borderBottomStyle: 'solid'
             });
+            $("#meaningless-padding").height( h );
         }
     });
 };
