@@ -450,7 +450,7 @@ initAnalysisPage = function(){
      */
     $('.icon-question-sign').popover();
 
-    $('#info-container').followTo( 40 );
+    $('#info-container').delay(5500).followTo( 40 );
 
 };
 
@@ -790,13 +790,15 @@ var windw = this;
 $.fn.followTo = function ( margin ) {
     var $this = this,
         $window = $(windw);
-    pos = $this.offset().top
+    var pos = $this.offset().top;
+    console.log($this.offset().top +" - "+$window.scrollTop());
     var h;
 
     $window.scroll(function(e){
         h = $this.height();
-        console.log($window.scrollTop());
-        if ($window.scrollTop() <= 597) {
+        if (pos==undefined || pos>700) pos = $this.offset().top;
+        console.log($this.offset().top +" - "+$window.scrollTop());
+        if ($window.scrollTop() <= pos-margin) {
             $this.css({
                 position: 'relative',
                 top: 0,
