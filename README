@@ -1,0 +1,11 @@
+To run this project, you must meet the requirements in dependencies.txt 
+Install them (preferably in a virtualenv) using: 
+pip install -r dependencies.txt
+
+Then run the cherrypy server with: 
+python run_server.py
+
+Don't forget to start your MongoDB!
+
+It will be reachable at: 
+http://localhost:8080
