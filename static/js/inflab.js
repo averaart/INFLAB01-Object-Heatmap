@@ -450,7 +450,7 @@ initAnalysisPage = function(){
      */
     $('.icon-question-sign').popover();
 
-    $('#info-container').followTo( 60 );
+    $('#info-container').followTo( 40 );
 
 };
 
@@ -791,19 +791,25 @@ $.fn.followTo = function ( margin ) {
     var $this = this,
         $window = $(windw);
     pos = $this.offset().top
+    var h;
 
     $window.scroll(function(e){
+        h = $this.height();
         console.log($window.scrollTop());
-        if ($window.scrollTop() <= pos-margin) {
+        if ($window.scrollTop() <= 597) {
             $this.css({
                 position: 'relative',
-                top: 0
+                top: 0,
+                borderBottomStyle: 'none'
             });
+            $("#meaningless-padding").height( 0 );
         } else {
             $this.css({
                 position: 'fixed',
-                top: margin
+                top: margin,
+                borderBottomStyle: 'solid'
             });
+            $("#meaningless-padding").height( h );
         }
     });
 };
